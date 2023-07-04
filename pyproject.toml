@@ -1,0 +1,12 @@
+[tool.isort]
+profile = "black"
+line_length = 88
+skip = "env/"
+skip_glob = "*/migrations/*.py"
+use_parentheses = true
+force_grid_wrap = 0
+include_trailing_comma = true
+
+[tool.flake8]
+max-line-length = 120
+exclude = ".git, */migrations/*, *env*,__pycache__,*/staticfiles/*, */mediafiles/*"
