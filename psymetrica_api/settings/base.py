@@ -51,14 +51,15 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
 ]
 
@@ -124,10 +125,9 @@ PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
 ]
 
+AUTH_USER_MODEL = "users.user"
 
-# Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
-
+# localtization
 LANGUAGE_CODE = "ru-RU"
 
 TIME_ZONE = "Asia/Irkutsk"
@@ -135,10 +135,6 @@ TIME_ZONE = "Asia/Irkutsk"
 USE_I18N = True
 
 USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 # static and media files
 STATIC_URL = "/staticfiles/"
@@ -151,11 +147,12 @@ MEDIA_ROOT = BASE_DIR / "mediafiles"
 CORS_URLS_REGEX = r"^/api/.*$"
 
 SITE_ID = 1
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
+
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+
+# custom logging
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -167,14 +164,14 @@ LOGGING = {
         }
     },
     "loggers": {
-        "": {
-            "level": "DEBUG",
-            "handlers": ["console"],
-        },
         "django.request": {
             "level": "DEBUG",
             "handlers": ["console"],
             "propagate": False,
+        },
+        "": {
+            "level": "DEBUG",
+            "handlers": ["console"],
         },
     },
     "formatters": {
