@@ -15,6 +15,8 @@ RUN pip install --upgrade pip
 
 RUN pip install -r local.txt
 
-RUN chmod +x start.sh
+RUN sed -i 's/\r$//' ./docker/start.sh
 
-ENTRYPOINT [ "start.sh" ]
+RUN chmod +x ./docker/start.sh
+
+CMD ["/bin/bash", "./docker/start.sh"]
