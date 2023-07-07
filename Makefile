@@ -6,3 +6,12 @@ migrations:
 
 format:
 	isort . --skip env --skip migrations && black --exclude=migrations --exclude=env .
+
+build:
+	docker-compose build && docker-compose up --remove-orphans
+
+down:
+	docker-compose down
+
+createsuperuser:
+	docker exec -it psymetrica-app python /app/manage.py createsuperuser

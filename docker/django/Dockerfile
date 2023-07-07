@@ -15,8 +15,8 @@ RUN pip install --upgrade pip
 
 RUN pip install -r local.txt
 
-RUN sed -i 's/\r$//' ./docker/start.sh
+RUN sed -i 's/\r$//' ./docker/django/start.sh
 
-RUN chmod +x ./docker/start.sh
+RUN chmod +x ./docker/django/start.sh
 
-CMD ["/bin/bash", "./docker/start.sh"]
+CMD ["/bin/bash", "./docker/django/start.sh"]

@@ -13,10 +13,10 @@ services:
     web:
         build:
             context: .
-            dockerfile: ./docker/Dockerfile
+            dockerfile: ./docker/django/Dockerfile
         container_name: psymetrica-app
-        ports:
-            - 8000:8000
+        expose:
+            - 8000
         env_file:
             - .env
         volumes:
@@ -32,6 +32,20 @@ services:
         container_name: psymetrica-mailhog
         ports:
             - 8025:8025
+        networks:
+            - psymetrica
+    web-server:
+        build:
+            context: ./docker/nginx
+            dockerfile: ./Dockerfile
+        restart: always
+        ports:
+            - 8080:80
+        volumes:
+            - static_volume:/app/staticfiles
+            - media_volume:/app/mediafiles
+        depends_on:
+            - web
         networks:
             - psymetrica
 networks:
