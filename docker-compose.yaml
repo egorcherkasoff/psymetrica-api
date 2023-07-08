@@ -10,10 +10,48 @@ services:
             - 5432:5432
         networks:
             - psymetrica
+    redis:
+        image: redis:7.2-rc-alpine
+        container_name: psymetrica-redis
+        networks:
+            - psymetrica
+    celery:
+        build:
+            context: .
+            dockerfile: ./docker/django/Dockerfile
+        command: /start-celery
+        container_name: celery
+        volumes:
+            - .:/app
+        env_file:
+            - .env
+        depends_on:
+            - redis
+            - db
+            - mailhog
+        networks:
+            - psymetrica
+    flower:
+        build:
+            context: .
+            dockerfile: ./docker/django/Dockerfile
+        command: /start-flower
+        ports:
+            - 5555:5555
+        volumes:
+            - .:/app
+        env_file:
+            - .env
+        depends_on:
+            - redis
+            - db
+        networks:
+            - psymetrica
     web:
         build:
             context: .
             dockerfile: ./docker/django/Dockerfile
+        command: /start
         container_name: psymetrica-app
         expose:
             - 8000
@@ -27,11 +65,15 @@ services:
             - psymetrica
         depends_on:
             - db
+            - redis
+            - mailhog
     mailhog:
         image: mailhog/mailhog:v1.0.1
         container_name: psymetrica-mailhog
         ports:
             - 8025:8025
+        depends_on:
+            - redis
         networks:
             - psymetrica
     web-server:

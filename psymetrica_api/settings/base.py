@@ -43,6 +43,7 @@ THIRD_PARTY_APPS = [
     "drf_yasg",
     "django_filters",
     "corsheaders",
+    "djcelery_email",
 ]
 
 LOCAL_APPS = ["apps.users", "apps.base"]
@@ -181,3 +182,11 @@ LOGGING = {
         }
     },
 }
+
+
+CELERY_BROKER_URL = environ.get("CELERY_BROKER")
+CELERY_RESULT_BACKEND = environ.get("CELERY_BACKEND")
+CELERY_TIMEZONE = "Asia/Irkutsk"
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"

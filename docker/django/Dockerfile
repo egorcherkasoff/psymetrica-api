@@ -15,8 +15,28 @@ RUN pip install --upgrade pip
 
 RUN pip install -r local.txt
 
-RUN sed -i 's/\r$//' ./docker/django/start.sh
+# django run
+COPY ./docker/django/start.sh /start
 
-RUN chmod +x ./docker/django/start.sh
+RUN sed -i 's/\r$//' /start
 
-CMD ["/bin/bash", "./docker/django/start.sh"]
+RUN chmod +x /start
+
+# celery
+COPY ./docker/celery/start.sh /start-celery
+
+RUN sed -i 's/\r$//' /start-celery
+
+RUN chmod +x /start-celery
+
+# flower
+
+COPY ./docker/flower/start.sh /start-flower
+
+RUN sed -i 's/\r$//' /start-flower
+
+RUN chmod +x /start-flower
+
+
+
+# CMD ["/bin/bash", "./docker/django/start.sh"]
