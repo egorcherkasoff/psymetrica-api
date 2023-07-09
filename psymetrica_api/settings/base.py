@@ -1,3 +1,4 @@
+from datetime import timedelta
 from os import environ
 from pathlib import Path
 
@@ -44,6 +45,8 @@ THIRD_PARTY_APPS = [
     "django_filters",
     "corsheaders",
     "djcelery_email",
+    "rest_framework_simplejwt",
+    "djoser",
 ]
 
 LOCAL_APPS = ["apps.users", "apps.base"]
@@ -190,3 +193,35 @@ CELERY_TIMEZONE = "Asia/Irkutsk"
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    )
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=600),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "SIGNING_KEY": environ.get("JWT_SIGNING_KEY"),
+    "AUTH_HEADER_TYPES": ("Bearer", "JWT"),
+}
+
+DJOSER = {
+    "USER_ID_FIELD": "id",
+    "LOGIN_FIELD": "email",
+    "USER_CREATE_PASSWORD_RETYPE": True,
+    "PASSWORD_CHANGED_EMAIL_CONFIRMATION": True,
+    "PASSWORD_RESET_CONFIRM_URL": "password/reset/confirm/{uid}/{token}",
+    "SET_PASSWORD_RETYPE": True,
+    "PASSWORD_RESET_CONFIRM_RETYPE": True,
+    "SERIALIZERS": {
+        "user_create": "apps.users.serializers.CreateUserSerializer",
+        "user": "apps.users.serializers.UserSerializer",
+        "current_user": "apps.users.serializers.UserSerializer",
+        "user_delete": "djoser.serializers.DeleteUserSerializer",
+    },
+}
+
+CSRF_TRUSTED_ORIGINS = ["http://localhost:8080"]
