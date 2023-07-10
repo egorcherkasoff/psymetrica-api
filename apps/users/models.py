@@ -1,7 +1,9 @@
 import uuid
 
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from .managers import CustomUserManager
@@ -63,3 +65,11 @@ class User(AbstractBaseUser, PermissionsMixin):
             return f"{self.first_name.title()} {self.middle_name.title() if self.middle_name else ''} {self.last_name}"
         except ValueError:
             return self.get_short_name
+
+    def delete(self):
+        if self.is_superuser:
+            raise ValidationError("Superuses are not allowed to be deleted")
+        self.deleted_at = timezone.now()
+        self.is_staff = False
+        self.is_active = False
+        self.save()

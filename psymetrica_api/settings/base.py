@@ -47,9 +47,10 @@ THIRD_PARTY_APPS = [
     "djcelery_email",
     "rest_framework_simplejwt",
     "djoser",
+    "rest_framework.authtoken",
 ]
 
-LOCAL_APPS = ["apps.users", "apps.base"]
+LOCAL_APPS = ["apps.users", "apps.base", "apps.tests", "apps.scales", "apps.questions"]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -220,7 +221,6 @@ DJOSER = {
         "user_create": "apps.users.serializers.CreateUserSerializer",
         "user": "apps.users.serializers.UserSerializer",
         "current_user": "apps.users.serializers.UserSerializer",
-        "user_delete": "djoser.serializers.DeleteUserSerializer",
     },
 }
 
