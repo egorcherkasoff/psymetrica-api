@@ -30,7 +30,7 @@ class AdminTest(ModelAdmin):
     )
     search_fields = ["name", "description"]
     list_filter = ["author"]
-    list_display = ["id", "name", "author"]
+    list_display = ["id", "name", "author", "slug"]
     readonly_fields = ["created_at", "updated_at"]
 
 

@@ -4,6 +4,8 @@ from .models import Test
 
 
 class TestSerializer(serializers.ModelSerializer):
+    """сериализатор для отображения теста"""
+
     name = serializers.CharField()
     description = serializers.CharField()
     author = serializers.SerializerMethodField(read_only=True)
@@ -19,10 +21,18 @@ class TestSerializer(serializers.ModelSerializer):
         ]
 
     def get_author(self, obj):
-        return f"{obj.user.first_name.title} {obj.user.middle_name.title() if obj.user.middle_name else ''} {obj.user.last_name.title()}"
+        try:
+            return f"{obj.author.first_name.title()} {obj.author.middle_name.title() if obj.author.middle_name else ''} {obj.author.last_name.title()}"
+        except AttributeError:
+            return obj.author.__str__()
 
 
-class UpdateTestSerializer(serializers.ModelSerializer):
+class TestUpdateSerializer(serializers.ModelSerializer):
+    """сериализатор для обновления теста"""
+
+    name = serializers.CharField()
+    description = serializers.CharField()
+
     class Meta:
         model = Test
         fields = [

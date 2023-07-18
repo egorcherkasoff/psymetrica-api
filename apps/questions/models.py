@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from ..scales.models import Scale
 from ..tests.models import Test
 
 
@@ -17,15 +16,6 @@ class Question(models.Model):
         verbose_name=_("Test"),
     )
     number = models.IntegerField(verbose_name=_("Question number"), default=1)
-    scale = models.ForeignKey(
-        to=Scale,
-        on_delete=models.CASCADE,
-        related_name="questions",
-        related_query_name="scale",
-        verbose_name=_("Scale"),
-        null=True,
-        blank=True,
-    )
     # timestamps
     created_at = models.DateTimeField(
         auto_now_add=True, verbose_name=_("create timestamp")
@@ -38,4 +28,7 @@ class Question(models.Model):
     class Meta:
         verbose_name = _("question")
         verbose_name_plural = _("questions")
-        ordering = ["-created_at"]
+        ordering = ["number", "-created_at"]
+
+    def __str__(self):
+        return f"{self.test.name}'s question #{self.number}"

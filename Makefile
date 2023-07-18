@@ -13,5 +13,8 @@ build:
 down:
 	docker-compose down
 
+up:
+	docker-compose up
+
 createsuperuser:
 	docker exec -it psymetrica-app python /app/manage.py createsuperuser

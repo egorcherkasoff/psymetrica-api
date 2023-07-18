@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -50,7 +50,15 @@ THIRD_PARTY_APPS = [
     "rest_framework.authtoken",
 ]
 
-LOCAL_APPS = ["apps.users", "apps.base", "apps.tests", "apps.scales", "apps.questions"]
+LOCAL_APPS = [
+    "apps.users",
+    "apps.base",
+    "apps.tests",
+    "apps.scales",
+    "apps.questions",
+    "apps.answers",
+    "apps.attempts",
+]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
