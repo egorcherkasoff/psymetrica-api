@@ -6,6 +6,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+# from ..tests.models import Test
 from .managers import CustomUserManager
 
 
@@ -55,16 +56,21 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def get_short_name(self):
         try:
-            return f"{self.first_name.title()} {self.last_name[0].title()}"
+            first_name = self.first_name.title()
+            last_name = self.last_name.title()
         except:
             return self.__str__()
+        return f"{first_name} {last_name}"
 
     @property
     def get_full_name(self):
         try:
-            return f"{self.first_name.title()} {self.middle_name.title() if self.middle_name else ''} {self.last_name}"
-        except ValueError:
+            first_name = self.first_name.title()
+            middle_name = self.middle_name.title()
+            last_name = self.last_name.title()
+        except:
             return self.get_short_name
+        return f"{first_name} {middle_name} {last_name}"
 
     def delete(self):
         if self.is_superuser:
@@ -73,3 +79,16 @@ class User(AbstractBaseUser, PermissionsMixin):
         self.is_staff = False
         self.is_active = False
         self.save()
+
+
+# class UserAssignedTest(models.Model):
+#     user = models.ForeignKey(
+#         to=User, on_delete=models.CASCADE, editable=False, related_name="assigned_tests"
+#     )
+#     test = models.ForeignKey(to=Test, on_delete=models.CASCADE, editable=False)
+#     assigned_by = models.ForeignKey(to=User, on_delete=models.CASCADE, editable=False)
+#     assigned_at = models.DateTimeField(auto_now_add=True)
+
+#     class Meta:
+#         verbose_name = _("Assigned test")
+#         verbose_name_plural = _("Assigned tests")

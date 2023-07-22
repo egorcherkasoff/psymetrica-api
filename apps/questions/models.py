@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-
+from django.utils import timezone
 from ..tests.models import Test
 
 
@@ -32,3 +32,7 @@ class Question(models.Model):
 
     def __str__(self):
         return f"{self.test.name}'s question #{self.number}"
+
+    def delete(self):
+        self.deleted_at = timezone.now()
+        self.save()

@@ -1,15 +1,15 @@
 from rest_framework import serializers
 
+from ..answers.serializers import AnswerSerializer
 from .models import Question
+from ..tests.models import Test
 
 
-class QuestionSerializer(serializers.ModelField):
+class QuestionSerializer(serializers.ModelSerializer):
     """сериализатор отображения вопросов"""
 
-    number = serializers.IntegerField()
-    name = serializers.CharField()
     test = serializers.CharField(source="test.name")
-    # add answers...
+    answers = AnswerSerializer(many=True)
 
     class Meta:
         model = Question
@@ -17,4 +17,27 @@ class QuestionSerializer(serializers.ModelField):
             "number",
             "text",
             "test",
+            "answers",
         ]
+
+
+class QuestionUpdateSerializer(serializers.ModelSerializer):
+    """сериализатор для обновления вопросов"""
+
+    class Meta:
+        model = Question
+        fields = [
+            "text",
+        ]
+
+
+class QuestionCreateSerializer(serializers.ModelSerializer):
+    """сериализатор для создания вопросов"""
+
+    test = serializers.SlugRelatedField(
+        slug_field="slug", queryset=Test.objects.filter(deleted_at__isnull=True)
+    )
+
+    class Meta:
+        model = Question
+        fields = ["text", "test"]
