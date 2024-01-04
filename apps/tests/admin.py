@@ -7,15 +7,15 @@ from .models import Test
 
 # Register your models here.
 class AdminTest(ModelAdmin):
-    ordering = ["id"]
+    ordering = ["pkid"]
     model = Test
     fieldsets = (
         (
-            _("general information"),
+            _("Основная информация"),
             {"fields": ("name", "description", "author")},
         ),
         (
-            _("timestamps"),
+            _("Даты"),
             {"fields": ("created_at", "updated_at", "deleted_at")},
         ),
     )

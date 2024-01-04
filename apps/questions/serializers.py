@@ -1,12 +1,12 @@
 from rest_framework import serializers
 
 from ..answers.serializers import AnswerSerializer
-from .models import Question
 from ..tests.models import Test
+from .models import Question
 
 
 class QuestionSerializer(serializers.ModelSerializer):
-    """сериализатор отображения вопросов"""
+    """сериализатор отображения списка вопросов"""
 
     test = serializers.CharField(source="test.name")
     answers = AnswerSerializer(many=True)

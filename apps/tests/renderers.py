@@ -1,5 +1,6 @@
 import json
 
+# возможно стоит перейти на станларный renderer
 from rest_framework.renderers import JSONRenderer
 
 

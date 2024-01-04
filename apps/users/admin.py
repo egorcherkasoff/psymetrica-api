@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
-from django.utils.translation import gettext_lazy as _
 
 from .forms import CreateUserForm, UpdateUserForm
 
@@ -16,7 +15,7 @@ class AdminUser(UserAdmin):
     add_form = CreateUserForm
     fieldsets = (
         (
-            _("login credentials"),
+            "Данные авторизации",
             {
                 "fields": (
                     "email",
@@ -25,12 +24,15 @@ class AdminUser(UserAdmin):
             },
         ),
         (
-            _("personal information"),
+            "Личная информация",
             {"fields": ("first_name", "middle_name", "last_name")},
         ),
-        (_("timestamps"), {"fields": ("created_at", "updated_at", "deleted_at")}),
-        (_("auth attributes"), {"fields": ("is_active", "is_staff", "is_superuser")}),
-        (_("groups"), {"fields": ["groups"]}),
+        ("Даты", {"fields": ("created_at", "updated_at", "deleted_at")}),
+        (
+            "Аттрибуты пользователя",
+            {"fields": ("is_active", "is_staff", "is_superuser")},
+        ),
+        ("Группы", {"fields": ["groups"]}),
     )
     add_fieldsets = (
         (
@@ -41,10 +43,9 @@ class AdminUser(UserAdmin):
             },
         ),
     )
-    search_fields = ["email", "first_name", "middle_name", "last_name", "is_staff"]
-    list_filter = ("is_staff", "is_superuser", "is_active")
+    search_fields = ["email", "first_name", "middle_name", "last_name"]
+    list_filter = ("is_staff", "is_superuser", "is_active", "groups")
     list_display = [
-        "pkid",
         "id",
         "email",
         "first_name",

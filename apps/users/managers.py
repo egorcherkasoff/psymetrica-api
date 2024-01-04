@@ -1,7 +1,6 @@
 from django.contrib.auth.models import UserManager
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from django.utils.translation import gettext_lazy as _
 
 
 class CustomUserManager(UserManager):
@@ -9,16 +8,16 @@ class CustomUserManager(UserManager):
         try:
             validate_email(email)
         except ValidationError:
-            raise ValidationError(_("Provide correct email address"))
+            raise ValidationError("Введите корректный адрес эл. почты")
 
     def create_user(self, email, password, **extra_fields):
         if not email:
-            raise ValueError(_("Provide an email address"))
+            raise ValueError("Введите ваш адрес эл. почты")
         else:
             self.validate_email(email)
 
         if not password:
-            raise ValueError(_("Provide a password"))
+            raise ValueError("Введите пароль")
 
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
@@ -30,7 +29,7 @@ class CustomUserManager(UserManager):
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
         if not extra_fields.get("is_staff"):
-            raise ValueError(_("Super user must be staff"))
+            raise ValueError("У администратора должен быть статус is_staff=True")
         user = self.create_user(email, password, **extra_fields)
         user.save()
         return user
