@@ -5,7 +5,7 @@ from django.db import models
 
 from apps.base.models import BaseModel
 
-from ..answers.models import Answer
+from ..options.models import Option
 from ..tests.models import Test
 
 User = get_user_model()
@@ -13,14 +13,55 @@ User = get_user_model()
 
 # Create your models here.
 class Attempt(BaseModel):
-    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
-    test = models.ForeignKey(to=Test, on_delete=models.CASCADE)
-    started_at = models.DateTimeField(auto_now_add=True)
-    finished_at = models.DateTimeField(null=True, blank=True)
+    """Модель попытки теста"""
+
+    user = models.ForeignKey(
+        to=User,
+        on_delete=models.CASCADE,
+        verbose_name="Пользователь",
+        related_name="attempts",
+        related_query_name="attempt",
+    )
+
+    test = models.ForeignKey(
+        to=Test,
+        on_delete=models.CASCADE,
+        verbose_name="Тест",
+        related_name="attempts",
+        related_query_name="attempt",
+    )
+
+    finished = models.DateTimeField(
+        null=True, blank=True, verbose_name="Дата завершения"
+    )
+
+    class Meta:
+        verbose_name = "попытка"
+        verbose_name_plural = "попытки"
+        ordering = ["-created_at"]
 
 
-# class AttemptAnswers(models.Model):
-#     attempt = models.ForeignKey(to=Attempt, on_delete=models.CASCADE)
-#     answer = models.ForeignKey(to=Answer, on_delete=models.CASCADE)
-#     text = models.TextField(max_length=True, blank=True, null=True)
-#     answered_at = models.DateTimeField(auto_now_add=True)
+class AttemptAnswers(BaseModel):
+    attempt = models.ForeignKey(
+        to=Attempt,
+        on_delete=models.CASCADE,
+        related_name="answers",
+        related_query_name="answer",
+    )
+
+    option = models.ForeignKey(
+        to=Option,
+        on_delete=models.CASCADE,
+        related_name="answers",
+        related_query_name="answer",
+    )
+
+    # поле заполняется только при типе вопроса OPEN или SCALE
+    answer = models.CharField(
+        max_length=255, verbose_name="Ответ", blank=True, null=True
+    )
+
+    class Meta:
+        verbose_name = "ответ попытки"
+        verbose_name_plural = "ответы попытки"
+        ordering = ["-attempt", "-created_at"]

@@ -12,7 +12,7 @@ class AdminTest(ModelAdmin):
     fieldsets = (
         (
             _("Основная информация"),
-            {"fields": ("name", "description", "author")},
+            {"fields": ("title", "description", "author")},
         ),
         (
             _("Даты"),
@@ -24,13 +24,13 @@ class AdminTest(ModelAdmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("name", "description"),
+                "fields": ("title", "description"),
             },
         ),
     )
-    search_fields = ["name", "description"]
+    search_fields = ["title", "description"]
     list_filter = ["author"]
-    list_display = ["id", "name", "author", "slug"]
+    list_display = ["id", "title", "author", "slug"]
     readonly_fields = ["created_at", "updated_at"]
 
 

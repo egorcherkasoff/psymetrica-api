@@ -56,7 +56,7 @@ LOCAL_APPS = [
     "apps.tests",
     "apps.scales",
     "apps.questions",
-    "apps.answers",
+    "apps.options",
     "apps.attempts",
 ]
 

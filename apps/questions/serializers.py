@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from ..answers.serializers import AnswerSerializer
+from ..options.serializers import OptionSerializer
 from ..tests.models import Test
 from .models import Question
 
@@ -9,7 +9,7 @@ class QuestionSerializer(serializers.ModelSerializer):
     """сериализатор отображения списка вопросов"""
 
     test = serializers.CharField(source="test.name")
-    answers = AnswerSerializer(many=True)
+    Options = OptionSerializer(many=True)
 
     class Meta:
         model = Question
@@ -17,7 +17,7 @@ class QuestionSerializer(serializers.ModelSerializer):
             "number",
             "text",
             "test",
-            "answers",
+            "Options",
         ]
 
 

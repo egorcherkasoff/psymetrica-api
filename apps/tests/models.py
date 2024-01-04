@@ -11,17 +11,19 @@ User = get_user_model()
 class Test(BaseModel):
     """Модель теста"""
 
-    name = models.CharField(max_length=155, verbose_name="Название")
+    title = models.CharField(db_index=True, max_length=255, verbose_name="Название")
     description = models.TextField(verbose_name="Описание", null=True, blank=True)
     author = models.ForeignKey(
         to=User,
         on_delete=models.CASCADE,
         related_name="tests",
-        related_query_name="user",
+        related_query_name="test",
+        verbose_name="Автор",
     )
+
     slug = AutoSlugField(
         always_update=True,
-        populate_from="name",
+        populate_from="title",
         unique=True,
     )
 
@@ -31,4 +33,4 @@ class Test(BaseModel):
         ordering = ["-created_at"]
 
     def __str__(self):
-        return self.name
+        return self.title
