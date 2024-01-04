@@ -6,15 +6,13 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-# from ..tests.models import Test
+from apps.base.models import BaseModel
+
 from .managers import CustomUserManager
 
 
-class User(AbstractBaseUser, PermissionsMixin):
-    # ids
-    pkid = models.BigAutoField(primary_key=True, editable=False)
-    id = models.UUIDField(default=uuid.uuid4, editable=False)
-    # auth credentials
+class User(AbstractBaseUser, BaseModel, PermissionsMixin):
+    
     email = models.EmailField(
         max_length=100, verbose_name=_("email"), unique=True, db_index=True, null=False
     )
@@ -31,14 +29,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(
         max_length=50, verbose_name=_("last name"), null=True, blank=True
     )
-    # timestamps
-    created_at = models.DateTimeField(
-        auto_now_add=True, verbose_name=_("create timestamp")
-    )
-    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("update timestamp"))
-    deleted_at = models.DateTimeField(
-        null=True, default=None, verbose_name=_("delete timestamp"), blank=True
-    )
+    
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
@@ -79,16 +70,3 @@ class User(AbstractBaseUser, PermissionsMixin):
         self.is_staff = False
         self.is_active = False
         self.save()
-
-
-# class UserAssignedTest(models.Model):
-#     user = models.ForeignKey(
-#         to=User, on_delete=models.CASCADE, editable=False, related_name="assigned_tests"
-#     )
-#     test = models.ForeignKey(to=Test, on_delete=models.CASCADE, editable=False)
-#     assigned_by = models.ForeignKey(to=User, on_delete=models.CASCADE, editable=False)
-#     assigned_at = models.DateTimeField(auto_now_add=True)
-
-#     class Meta:
-#         verbose_name = _("Assigned test")
-#         verbose_name_plural = _("Assigned tests")
