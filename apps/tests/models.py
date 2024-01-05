@@ -34,3 +34,32 @@ class Test(BaseModel):
 
     def __str__(self):
         return self.title
+
+
+class AssignedTest(BaseModel):
+    """Модель назначения теста"""
+
+    assigned_to = models.ForeignKey(
+        to=User,
+        on_delete=models.CASCADE,
+        verbose_name="Кому назначено",
+        related_name="assigned_to_tests",
+    )
+    assigned_by = models.ForeignKey(
+        related_name="assigned_by_tests",
+        to=User,
+        on_delete=models.CASCADE,
+        verbose_name="Кто назначил",
+    )
+
+    test = models.ForeignKey(
+        to=Test,
+        on_delete=models.CASCADE,
+        verbose_name="Тест",
+        related_name="assignments",
+    )
+
+    class Meta:
+        verbose_name = "Назначение теста"
+        verbose_name_plural = "Назначения теста"
+        ordering = ["assigned_to", "test", "-created_at"]

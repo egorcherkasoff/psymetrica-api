@@ -5,107 +5,153 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .exceptions import CantAssignTests, CantAssignTestsForYourself, NotYourTest
-from .models import Test
+from .models import AssignedTest, Test
 from .pagination import TestPagination
-from .renderers import TestJSONRenderer, TestsJSONRenderer
+from .permissions import IsOwner
 from .serializers import (
-    TestCreateSerializer,
-    TestDetailSerializer,
-    TestListSerializer,
-    TestUpdateSerializer,
+    TestCreateUpdateSerializer,
+    TestSerializer,
 )
 
 User = get_user_model()
 
 
 class TestListAPIView(generics.ListAPIView):
-    """постраничный вывод тестов"""
+    """Эндпоинт выводит список всех тестов"""
 
-    serializer_class = TestListSerializer
+    serializer_class = TestSerializer
     permission_classes = [
         permissions.AllowAny,
     ]
     queryset = Test.objects.filter(deleted_at__isnull=True)
-    renderer_classes = (TestsJSONRenderer,)
     pagination_class = TestPagination
 
 
 class TestDetailAPIView(generics.RetrieveAPIView):
-    """возвращает один тест по slug полю"""
+    """Эндпоинт возвращает один тест по его slug"""
 
-    serializer_class = TestDetailSerializer
+    serializer_class = TestSerializer
     permission_classes = [
         permissions.AllowAny,
     ]
-    renderer_classes = (TestJSONRenderer,)
 
     def retrieve(self, request, slug, *args, **kwargs):
         try:
             test = Test.objects.get(slug=slug, deleted_at__isnull=True)
         except Test.DoesNotExist:
-            raise NotFound("Test with following url doesnt exist.")
+            raise NotFound("Такого теста не существует.")
         serializer = self.serializer_class(test, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class TestCreateAPIView(generics.CreateAPIView):
-    """создает тест"""
+    """Эндпоинт для создания теста"""
 
     permission_classes = [
         permissions.IsAuthenticated,
     ]
-    serializer_class = TestCreateSerializer
-    renderer_classes = (TestJSONRenderer,)
+    serializer_class = TestCreateUpdateSerializer
 
     def post(self, request, *args, **kwargs):
-        serialiser = self.serializer_class(
+        serializer = self.serializer_class(
             data=request.data, context={"request": request}
         )
-        if serialiser.is_valid(raise_exception=True):
-            serialiser.save(author=request.user)
-        return Response(serialiser.data, status=status.HTTP_201_CREATED)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(author=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class TestUpdateAPIView(generics.UpdateAPIView):
-    """обновление данных теста по slug"""
+    """Эндпоинт для обновления теста"""
 
-    permission_classes = (permissions.IsAuthenticated,)
-    renderer_classes = (TestJSONRenderer,)
-    serializer_class = TestUpdateSerializer
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsOwner,
+    )
+    serializer_class = TestCreateUpdateSerializer
 
     def patch(self, request, slug, *args, **kwargs):
         try:
             # check
             test = Test.objects.get(slug=slug, deleted_at__isnull=True)
         except Test.DoesNotExist:
-            raise NotFound("Test with following url doesnt exist.")
+            raise NotFound("Такого теста не существует")
 
         user = request.user
         if test.author != user:
             raise NotYourTest
 
         data = request.data
-        serializer = TestUpdateSerializer(instance=test, data=data, partial=True)
+        serializer = self.serializer_class(instance=test, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class TestDestroyAPIView(generics.DestroyAPIView):
-    """удаляет один тест по slug"""
+    """Эндпоинт для удаления теста"""
 
     permission_classes = [
         permissions.IsAuthenticated,
+        IsOwner,
     ]
 
     def destroy(self, request, slug):
         try:
             test = Test.objects.get(slug=slug, deleted_at__isnull=True)
         except Test.DoesNotExist:
-            raise NotFound("Test with following url doesnt exist.")
+            raise NotFound("Такого теста не существует")
 
         if test.author != request.user:
             raise NotYourTest
 
         test.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class TestAssignAPIView(APIView):
+    """назначает тест другому пользователю"""
+
+    permission_classes = [
+        permissions.IsAuthenticated,
+        IsOwner,
+    ]
+
+    def post(self, request, slug, user_id):
+        try:
+            test = Test.objects.get(slug=slug, deleted_at__isnull=True)
+        except Test.DoesNotExist:
+            raise NotFound("Такого теста не существует")
+
+        if test.author != request.user:
+            raise NotYourTest
+
+        try:
+            user = User.objects.get(id=user_id, deleted_at__isnull=True)
+        except User.DoesNotExist:
+            raise NotFound("Такого пользователя не существует")
+
+        if user == request.user:
+            raise CantAssignTestsForYourself
+
+        AssignedTest.objects.create(
+            assigned_by=request.user, assigned_to=user, test=test
+        )
+
+        return Response(
+            data={"message": "Тест успешно назначен"}, status=status.HTTP_201_CREATED
+        )
+
+
+class TestsAssignedToUserListAPIView(generics.ListAPIView):
+    """Выводит список назначенных пользователю тестов"""
+
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
+    serializer_class = TestSerializer
+    pagination_class = TestPagination
+
+    def get_queryset(self):
+        return Test.objects.filter(
+            assignments__assigned_to__id=self.kwargs.get("user_id"),
+            deleted_at__isnull=True,
+        )

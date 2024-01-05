@@ -8,5 +8,14 @@ urlpatterns = [
     path("<str:slug>/", views.TestDetailAPIView.as_view(), name="test-detail"),
     path("<str:slug>/update", views.TestUpdateAPIView.as_view(), name="test-update"),
     path("<str:slug>/delete", views.TestDestroyAPIView.as_view(), name="test-delete"),
-    path("<str:slug>/questions/", include("apps.questions.urls")),
+    path(
+        "<str:slug>/assign/<str:user_id>/",
+        views.TestAssignAPIView.as_view(),
+        name="test-assign",
+    ),
+    path(
+        "assigned/<str:user_id>/",
+        views.TestsAssignedToUserListAPIView.as_view(),
+        name="test-assigned-to-user",
+    ),
 ]

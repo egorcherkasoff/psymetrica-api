@@ -43,7 +43,7 @@ class Option(BaseModel):
     class Meta:
         verbose_name = "вариант ответа"
         verbose_name_plural = "варианты ответа"
-        ordering = ["number", "-created_at"]
+        ordering = ["question", "number", "-created_at"]
 
     def __str__(self):
         return f"Ответ на {self.question} №{self.number}"
@@ -61,4 +61,4 @@ class OptionScore(BaseModel):
 
     class Meta:
         verbose_name = "балл варианта ответа"
-        verbose_name = "баллы вариантов ответа"
+        verbose_name_plural = "баллы вариантов ответа"

@@ -213,7 +213,7 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=600),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    "SIGNING_KEY": environ.get("JWT_SIGNING_KEY"),
+    "SIGNING_KEY": environ.get("JWT_SIGNING_KEY", "secret_key"),
     "AUTH_HEADER_TYPES": ("Bearer", "JWT"),
 }
 
@@ -221,7 +221,6 @@ DJOSER = {
     "USER_ID_FIELD": "id",
     "LOGIN_FIELD": "email",
     "USER_CREATE_PASSWORD_RETYPE": True,
-    "PASSWORD_CHANGED_EMAIL_CONFIRMATION": True,
     "PASSWORD_RESET_CONFIRM_URL": "password/reset/confirm/{uid}/{token}",
     "SET_PASSWORD_RETYPE": True,
     "PASSWORD_RESET_CONFIRM_RETYPE": True,
