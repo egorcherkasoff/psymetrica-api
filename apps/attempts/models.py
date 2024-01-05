@@ -6,6 +6,7 @@ from django.db import models
 from apps.base.models import BaseModel
 
 from ..options.models import Option
+from ..scales.models import Scale
 from ..tests.models import Test
 
 User = get_user_model()
@@ -41,7 +42,9 @@ class Attempt(BaseModel):
         ordering = ["-created_at"]
 
 
-class AttemptAnswers(BaseModel):
+class AttemptAnswer(BaseModel):
+    """Модель ответов попытки"""
+
     attempt = models.ForeignKey(
         to=Attempt,
         on_delete=models.CASCADE,
@@ -59,6 +62,14 @@ class AttemptAnswers(BaseModel):
     # поле заполняется только при типе вопроса OPEN или SCALE
     answer = models.CharField(
         max_length=255, verbose_name="Ответ", blank=True, null=True
+    )
+
+    # используются для хранения баллов попытки
+    score = models.SmallIntegerField(
+        default=0, verbose_name="Баллы"
+    )  # выставляется вручую если вопрос типа OPEN
+    scale = models.ForeignKey(
+        to=Scale, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Шкала"
     )
 
     class Meta:

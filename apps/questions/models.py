@@ -59,7 +59,7 @@ class QuestionImage(BaseModel):
 
     image = models.ImageField(
         upload_to="question_images",
-        verbose_name="Изображение вопроса",
+        verbose_name="Изображение",
     )
 
     class Meta:

@@ -47,3 +47,18 @@ class Option(BaseModel):
 
     def __str__(self):
         return f"Ответ на {self.question} №{self.number}"
+
+
+class OptionScore(BaseModel):
+    """модель баллов для варианта ответа"""
+
+    option = models.ForeignKey(to=Option, on_delete=models.CASCADE)
+    scale = models.ForeignKey(
+        to=Scale, on_delete=models.CASCADE, null=True, blank=True
+    )  # может быть пустым, при отсутствии шкал
+
+    score = models.SmallIntegerField(verbose_name="Баллы", default=1)
+
+    class Meta:
+        verbose_name = "балл варианта ответа"
+        verbose_name = "баллы вариантов ответа"

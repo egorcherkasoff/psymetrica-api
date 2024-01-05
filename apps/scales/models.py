@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 
 from apps.base.models import BaseModel
 
@@ -8,16 +7,18 @@ from ..tests.models import Test
 
 # Create your models here.
 class Scale(BaseModel):
-    name = models.CharField(max_length=125, verbose_name="Scale name")
-    description = models.TextField("Description", max_length=255, null=True)
+    """Модель шкалы"""
+
+    title = models.CharField(max_length=125, verbose_name="Название")
+    description = models.TextField("Описание", max_length=255, null=True)
     test = models.ForeignKey(
         to=Test,
         on_delete=models.CASCADE,
         related_name="scales",
-        related_query_name="test",
+        related_query_name="scale",
     )
 
     class Meta:
-        verbose_name = "scale"
-        verbose_name_plural = "scales"
-        ordering = ["-created_at"]
+        verbose_name = "шкала"
+        verbose_name_plural = "шкалы"
+        ordering = ["test", "-created_at"]
