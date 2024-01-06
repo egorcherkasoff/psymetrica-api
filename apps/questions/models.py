@@ -53,10 +53,10 @@ class QuestionImage(BaseModel):
         to=Question,
         on_delete=models.CASCADE,
         related_name="images",
-        related_query_name="image",
         verbose_name="Вопрос",
     )
 
+    # переименовать image в file?
     image = models.ImageField(
         upload_to="question_images",
         verbose_name="Изображение",

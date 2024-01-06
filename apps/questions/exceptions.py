@@ -29,7 +29,11 @@ class CantDeleteQuestionsForOthersTest(APIException):
     default_detail = "Вы не можете удалять вопросы тестов других пользователей"
 
 
-# возможно уберу, пока докстр не буду писать
 class QuestionWithNumberExists(APIException):
     status_code = 400
     default_detail = "Тест с таким номером уже существует"
+
+
+class IncorrectQuestionNumber(APIException):
+    status_code = 400
+    default_detail = "Некорректный номер вопроса"

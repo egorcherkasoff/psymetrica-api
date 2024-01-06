@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions, status
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
@@ -10,107 +11,115 @@ from .exceptions import (
     CantAddQuestionsForOthersTest,
     CantDeleteQuestionsForOthersTest,
     CantUpdateQuestionsForOthersTest,
+    IncorrectQuestionNumber,
     QuestionNotForThisTest,
     QuestionWithNumberExists,
 )
 from .models import Question
-from .renderers import QuestionJSONRenderer
-from .serializers import (
-    QuestionCreateSerializer,
-    QuestionSerializer,
-    QuestionUpdateSerializer,
-)
+from .serializers import QuestionCreateUpdateSerializer, QuestionSerializer
 
 User = get_user_model()
 
 
-class QuestionDetailAPIView(generics.RetrieveAPIView):
-    """возвращает один вопрос по slug полю и номеру вопроса"""
+def check_question_number(test, number):
+    """проверяет правильность введенного номера вопроса"""
+    if number > test.questions.count() + 1:
+        raise IncorrectQuestionNumber
 
+
+class TestQuestionsListAPIView(generics.ListAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = QuestionSerializer
-    permission_classes = [
-        permissions.IsAuthenticated,
-    ]
-    renderer_classes = (QuestionJSONRenderer,)
 
-    def retrieve(self, request, slug, number, *args, **kwargs):
+    def get_queryset(self):
+        slug = self.kwargs.get("test_slug")
         try:
-            question = Question.objects.get(
-                test__slug=slug, number=number, deleted_at__isnull=True
-            )
-        except Question.DoesNotExist:
-            raise NotFound("Question with following number doesnt exist.")
-        serializer = self.serializer_class(question, context={"request": request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            test = Test.objects.get(slug=slug)
+        except Test.DoesNotExist:
+            raise NotFound("Такого теста не существует.")
+        return test.questions.filter(deleted_at__isnull=True)
 
 
 class QuestionCreateAPIView(generics.CreateAPIView):
-    """создает вопрос"""
+    """Эндпоинт для создания вопроса"""
 
-    permission_classes = [
-        permissions.IsAuthenticated,
-    ]
-    serializer_class = QuestionCreateSerializer
-    renderer_classes = (QuestionJSONRenderer,)
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = QuestionCreateUpdateSerializer
 
-    def post(self, request, slug, *args, **kwargs):
-        test = Test.objects.get(slug=slug)
-        if request.user != test.author:
+    def post(self, request, test_slug, *args, **kwargs):
+        try:
+            test = Test.objects.get(slug=test_slug)
+        except Test.DoesNotExist:
+            raise NotFound("Такого теста не существует.")
+
+        if test.author != request.user:
             raise CantAddQuestionsForOthersTest
+
+        question_number = request.data.get("number")
+
+        if test.questions.filter(number=question_number).exists():
+            raise QuestionWithNumberExists
+
+        check_question_number(test, question_number)
+
         serializer = self.serializer_class(
             data=request.data, context={"request": request}
         )
         if serializer.is_valid(raise_exception=True):
-            # получем максимальный "номер" для создания нового вопроса
-            question_number = Question.objects.last().number + 1
-            serializer.save(number=question_number)
+            serializer.save(test=test)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class QuestionUpdateAPIView(generics.UpdateAPIView):
-    """обновление данных вопроса по slug теста и номеру вопроса"""
+    """Эндпоинт для обновления вопроса"""
 
     permission_classes = (permissions.IsAuthenticated,)
-    renderer_classes = (QuestionJSONRenderer,)
-    serializer_class = QuestionUpdateSerializer
+    serializer_class = QuestionCreateUpdateSerializer
 
-    def patch(self, request, slug, number, *args, **kwargs):
+    def patch(self, request, test_slug, id, *args, **kwargs):
         try:
-            question = Question.objects.get(
-                slug=slug, deleted_at__isnull=True, number=number
-            )
+            test = Test.objects.get(slug=test_slug)
+        except Test.DoesNotExist:
+            raise NotFound("Такого теста не существует.")
+        try:
+            question = Question.objects.get(id=id)
         except Question.DoesNotExist:
-            raise NotFound("Test with following url doesnt exist.")
+            raise NotFound("Такого вопроса не существует.")
 
-        if question.test.author != request.user:
+        if question.test != test:
+            raise QuestionNotForThisTest
+
+        if test.author != request.user:
             raise CantUpdateQuestionsForOthersTest
 
-        data = request.data
-        serializer = QuestionUpdateSerializer(
-            instance=question, data=data, partial=True
+        serializer = self.serializer_class(
+            question, data=request.data, context={"request": request}
         )
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class TestDestroyAPIView(generics.DestroyAPIView):
-    """удаляет один тест по slug"""
+class QuestionDeleteAPIView(generics.DestroyAPIView):
+    """Эндпоинт для удаления вопроса"""
 
-    permission_classes = [
-        permissions.IsAuthenticated,
-    ]
+    permission_classes = (permissions.IsAuthenticated,)
 
-    def destroy(self, request, slug, number):
+    def delete(self, request, test_slug, question_id, *args, **kwargs):
         try:
-            question = Question.objects.get(
-                slug=slug, number=number, deleted_at__isnull=True
-            )
+            test = Test.objects.get(slug=test_slug)
         except Test.DoesNotExist:
-            raise NotFound("Test with following url doesnt exist.")
+            raise NotFound("Такого теста не существует.")
+        try:
+            question = Question.objects.get(id=question_id)
+        except Question.DoesNotExist:
+            raise NotFound("Такого вопроса не существует.")
 
-        if question.test.author != request.user:
+        if test.author != request.user:
             raise CantDeleteQuestionsForOthersTest
+
+        if question.test != test:
+            raise QuestionNotForThisTest
 
         question.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

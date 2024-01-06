@@ -30,6 +30,7 @@ class User(AbstractBaseUser, BaseModel, PermissionsMixin):
     last_name = models.CharField(
         max_length=50, verbose_name="фамилия", null=True, blank=True
     )
+    # todo: добавить аватарки
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

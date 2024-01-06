@@ -8,10 +8,7 @@ from .exceptions import CantAssignTests, CantAssignTestsForYourself, NotYourTest
 from .models import AssignedTest, Test
 from .pagination import TestPagination
 from .permissions import IsOwner
-from .serializers import (
-    TestCreateUpdateSerializer,
-    TestSerializer,
-)
+from .serializers import TestCreateUpdateSerializer, TestSerializer
 
 User = get_user_model()
 
