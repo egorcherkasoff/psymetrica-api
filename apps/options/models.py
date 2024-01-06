@@ -7,7 +7,6 @@ from ..questions.models import Question
 from ..scales.models import Scale
 
 
-# Create your models here.
 class Option(BaseModel):
     """модель варианта ответа на вопрос"""
 
@@ -52,7 +51,9 @@ class Option(BaseModel):
 class OptionScore(BaseModel):
     """модель баллов для варианта ответа"""
 
-    option = models.ForeignKey(to=Option, on_delete=models.CASCADE)
+    option = models.ForeignKey(
+        to=Option, on_delete=models.CASCADE, related_name="scores"
+    )
     scale = models.ForeignKey(
         to=Scale, on_delete=models.CASCADE, null=True, blank=True
     )  # может быть пустым, при отсутствии шкал

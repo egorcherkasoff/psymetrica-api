@@ -7,6 +7,8 @@ class OptionSerializer(serializers.ModelSerializer):
     """сериализатор для вариантов ответа"""
 
     image = serializers.SerializerMethodField()
+    score = serializers.SerializerMethodField()
+    scale = serializers.SerializerMethodField()
 
     class Meta:
         model = Option
@@ -18,6 +20,12 @@ class OptionSerializer(serializers.ModelSerializer):
             "image",
             "text",
         ]
+
+    def get_score(self, obj):
+        return obj.scores.first().score
+
+    def get_scale(self, obj):
+        return obj.scores.first().scale
 
     def get_image(self, obj):
         try:

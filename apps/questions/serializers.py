@@ -3,6 +3,8 @@ from rest_framework import serializers
 from ..options.serializers import OptionSerializer
 from ..tests.models import Test
 from .models import Question, QuestionImage
+from django.core.exceptions import ValidationError
+from PIL import Image
 
 
 class QuestionSerializer(serializers.ModelSerializer):
@@ -41,10 +43,8 @@ class QuestionSerializer(serializers.ModelSerializer):
 class QuestionCreateUpdateSerializer(serializers.ModelSerializer):
     """сериализатор создания и обновления вопроса"""
 
+    image = serializers.ImageField(required=False)
+
     class Meta:
         model = Question
-        fields = [
-            "number",
-            "text",
-            "type",
-        ]
+        fields = ["number", "text", "type", "image"]
