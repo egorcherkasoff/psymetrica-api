@@ -34,3 +34,8 @@ class CantUpdateOptionsForOthersTest(APIException):
 class CantAddOptionsForOthersTest(APIException):
     status_code = 403
     default_detail = "Вы не можете добавлять варианты ответов других пользователей"
+
+
+class OptionTypeOpenMustBeUnique(APIException):
+    status_code = 400
+    default_detail = "Вариант ответа открытого типа должен быть уникальным"

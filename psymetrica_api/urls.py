@@ -24,6 +24,7 @@ urlpatterns = [
     # todo привести урлы в порядок
     path("api/v1/tests/", include("apps.tests.urls")),
     path("api/v1/questions/", include("apps.questions.urls")),
+    path("api/v1/options/", include("apps.options.urls")),
 ]
 
 admin.site.site_title = "Psymetrica Admin"

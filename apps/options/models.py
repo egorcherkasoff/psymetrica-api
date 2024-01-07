@@ -39,6 +39,7 @@ class Option(BaseModel):
         verbose_name="Изображение варианта ответа",
     )
 
+    # TODO: добавить unique together
     class Meta:
         verbose_name = "вариант ответа"
         verbose_name_plural = "варианты ответа"
@@ -63,3 +64,6 @@ class OptionScore(BaseModel):
     class Meta:
         verbose_name = "балл варианта ответа"
         verbose_name_plural = "баллы вариантов ответа"
+
+    def __str__(self):
+        return f"{self.option} => {self.score} балла по шкале {self.scale}"

@@ -1,10 +1,10 @@
+from django.core.exceptions import ValidationError
+from PIL import Image
 from rest_framework import serializers
 
 from ..options.serializers import OptionSerializer
 from ..tests.models import Test
 from .models import Question, QuestionImage
-from django.core.exceptions import ValidationError
-from PIL import Image
 
 
 class QuestionSerializer(serializers.ModelSerializer):

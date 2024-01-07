@@ -5,6 +5,7 @@ from apps.base.models import BaseModel
 from ..tests.models import Test
 
 
+# TODO: в delete добавить удаление картинок
 # Create your models here.
 class Question(BaseModel):
     """модель вопроса"""
