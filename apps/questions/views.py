@@ -24,10 +24,14 @@ from .serializers import QuestionCreateUpdateSerializer, QuestionSerializer
 User = get_user_model()
 
 
-def check_question_number(test, number):
+def check_question_number(test, number, create=True):
     """проверяет правильность введенного номера вопроса"""
-    if number > test.questions.count() + 1:
-        raise IncorrectQuestionNumber
+    if create:
+        if number > test.questions.count() + 1:
+            raise IncorrectQuestionNumber
+    else:
+        if number > test.questions.count():
+            raise IncorrectQuestionNumber
 
 
 class TestQuestionsListAPIView(generics.ListAPIView):
@@ -114,10 +118,25 @@ class QuestionUpdateAPIView(generics.UpdateAPIView):
             image_data = None
 
         serializer = self.serializer_class(
-            question, data=request.data, context={"request": request}
+            instance=question,
+            data=request.data,
+            partial=True,
+            context={"request": request},
         )
         if serializer.is_valid(raise_exception=True):
-            serializer.save()
+            new_number = int(request.data.get("number", None))
+            number = question.number
+            # для подгона номеров других вопросов смотрим, были ли вообще новый номер в запросе
+            if new_number:
+                # если старый и новый не отличаются, то просто ставим в сериализатор текущее значение
+                if new_number != number:
+                    # смотрим, чтобы номер был не больше количества вопросов в тесте
+                    check_question_number(test, new_number, False)
+                    number = new_number
+            serializer.save(number=number)
+            questions = test.questions.exclude(deleted_at__isnull=True)
+            sort_by_number(Question, questions)
+
             # обновляем картинку если картинка была, иначе создаем новую
             if image_data:
                 # проверяем, картинку ли прикрепил юзер

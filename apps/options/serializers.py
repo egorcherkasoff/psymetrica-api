@@ -68,19 +68,23 @@ class OptionCreateUpdateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         """валидация типа ответа в зависимости от типа вопроса"""
         question_id = self.context.get("question_id")
+        # обновляем или создаем
+        update = self.context.get("update")
         question = Question.objects.get(id=question_id)
         type = question.type
         # у вопроса типа single и multi должно быть поле text
         if type == 1 or type == 2:
-            if not attrs.get("text"):
-                raise IncorrectOptionType
+            if not update:
+                if not attrs.get("text"):
+                    raise IncorrectOptionType
             attrs["image"] = None
             attrs["min_range"] = None
             attrs["max_range"] = None
         # у вопроса типа range только min и max range
         elif type == 3:
-            if not attrs.get("min_range") or not attrs.get("max_range"):
-                raise IncorrectOptionType
+            if not update:
+                if not attrs.get("min_range") or not attrs.get("max_range"):
+                    raise IncorrectOptionType
             attrs["text"] = None
             attrs["image"] = None
         # у типа open все поля пустые

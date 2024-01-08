@@ -14,6 +14,11 @@ urlpatterns = [
         name="option-create",
     ),
     path(
+        "<str:question_id>/<str:id>/update",
+        views.OptionUpdateAPIView.as_view(),
+        name="option-update",
+    ),
+    path(
         "<str:id>/delete",
         views.OptionDeleteAPIView.as_view(),
         name="option-delete",
