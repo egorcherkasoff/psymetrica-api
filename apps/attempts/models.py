@@ -41,6 +41,26 @@ class Attempt(BaseModel):
         verbose_name_plural = "попытки"
         ordering = ["-created_at"]
 
+    def __str__(self):
+        finished = (
+            "Не завершена"
+            if self.finished is None
+            else f"Завершена на {self.get_finished_date()}"
+        )
+        return f'Попытка теста "{self.test}" пользователя {self.user} от {self.get_start_date()}. {finished}'
+
+    @property
+    def is_finished(self):
+        return True if self.finished is not None else False
+
+    def get_start_date(self):
+        return self.created_at.strftime("%d.%m.%Y в %H:%M")
+
+    def get_finished_date(self):
+        if self.finished:
+            return self.finished.strftime("%d.%m.%Y в %H:%M")
+        return "Не завершена"
+
 
 class AttemptAnswer(BaseModel):
     """Модель ответов попытки"""
@@ -76,3 +96,6 @@ class AttemptAnswer(BaseModel):
         verbose_name = "ответ попытки"
         verbose_name_plural = "ответы попытки"
         ordering = ["-attempt", "-created_at"]
+
+    def __str__(self):
+        return f"Ответ попытки {self.attempt.id} на {self.option.question}"

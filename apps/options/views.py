@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.base.services import sort_by_number
+from apps.questions.models import Question
 
 from .exceptions import (
     CantAddOptionsForOthersTest,
@@ -17,7 +18,6 @@ from .exceptions import (
     OptionTypeOpenMustBeUnique,
     OptionWithNumberExists,
 )
-from apps.questions.models import Question
 from .models import Option, OptionScore
 from .serializers import OptionCreateUpdateSerializer, OptionSerializer
 

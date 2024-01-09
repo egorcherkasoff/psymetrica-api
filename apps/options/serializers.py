@@ -1,8 +1,9 @@
 from rest_framework import serializers
 
-from .models import Option, OptionScore
 from apps.questions.models import Question
+
 from .exceptions import IncorrectOptionType
+from .models import Option, OptionScore
 
 
 class OptionSerializer(serializers.ModelSerializer):

@@ -22,3 +22,6 @@ class Scale(BaseModel):
         verbose_name = "шкала"
         verbose_name_plural = "шкалы"
         ordering = ["test", "-created_at"]
+
+    def __str__(self):
+        return self.title

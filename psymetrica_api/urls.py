@@ -26,6 +26,7 @@ urlpatterns = [
     path("api/v1/questions/", include("apps.questions.urls")),
     path("api/v1/options/", include("apps.options.urls")),
     path("api/v1/scales/", include("apps.scales.urls")),
+    path("api/v1/attempts/", include("apps.attempts.urls")),
 ]
 
 admin.site.site_title = "Psymetrica Admin"

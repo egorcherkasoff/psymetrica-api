@@ -1,12 +1,12 @@
 from django.shortcuts import render
-from rest_framework import generics, permissions
-from apps.scales.models import Scale
+from rest_framework import generics, permissions, status
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
-from rest_framework import status
 
+from apps.scales.models import Scale
 from apps.scales.serializers import ScaleSerializer
 from apps.tests.models import Test
+
 from .exceptions import (
     CantAddScalesForOthersTests,
     CantDeleteScalesForOthersTests,
@@ -24,19 +24,18 @@ class TestScalesListAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         test_id = self.kwargs.get("test_id")
-        request = self.kwargs.get("request")
         try:
             test = Test.objects.get(id=test_id)
         except Test.DoesNotExist:
             raise NotFound("Такого теста не существует")
 
-        if test.author != request.user:
+        if test.author != self.request.user:
             raise CantViewScalesForOthersTest
 
         try:
             scales = Scale.objects.filter(test=test, deleted_at__isnull=True)
         except Scale.DoesNotExist:
-            raise NotFound
+            raise NotFound("У этого теста нет шкал.")
 
         return scales
 
