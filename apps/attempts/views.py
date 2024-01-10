@@ -1,8 +1,11 @@
 from rest_framework import generics, permissions, status
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
+from apps.options.models import Option, OptionScore
+from apps.scales.models import Scale
 
 from apps.tests.models import Test
+
 from .exceptions import (
     CantAddAnswersForOthersAttempts,
     CantAttemptDeletedTest,
@@ -11,7 +14,7 @@ from .exceptions import (
     CantViewAttemptForOthersTests,
 )
 from .models import Attempt, AttemptAnswer
-from .serializers import AttemptSerializer, AttemptAnswerSerializer
+from .serializers import AttemptAnswerSerializer, AttemptSerializer
 
 
 class StartAttemptAPIView(generics.CreateAPIView):
@@ -74,6 +77,60 @@ class CreateAttemptAnswerCreateAPIView(generics.CreateAPIView):
         serializer = self.serializer_class(
             data=request.data, context={"request": request}
         )
+
         if serializer.is_valid(raise_exception=True):
-            serializer.save(attempt=attempt)
+            option_id = serializer.validated_data["option"]
+            option = Option.objects.get(id=option_id)
+            try:
+                score = option.scores.filter(deleted_at__isnull=True).first()
+            except OptionScore.DoesNotExist:
+                score = None
+
+            try:
+                scale = option.scales.filter(deleted_at__isnull=True).first()
+            except Scale.DoesNotExist:
+                scale = None
+
+            answer = serializer.save(attempt=attempt)
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class AllTestAttemptsListAPIView(generics.ListAPIView):
+    serializer_class = AttemptSerializer
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+
+    def get_queryset(self):
+        try:
+            test = Test.objects.get(id=self.kwargs["test_id"])
+        except Test.DoesNotExist:
+            raise NotFound("Такого теста не существует")
+        if test.author != self.request.user:
+            raise CantViewAttemptForOthersTests
+        return Attempt.objects.filter(test=test)
+
+
+class UserTestAttemptsListAPIView(generics.ListAPIView):
+    serializer_class = AttemptSerializer
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+
+    def get_queryset(self):
+        try:
+            test = Test.objects.get(id=self.kwargs["test_id"])
+        except Test.DoesNotExist:
+            raise NotFound("Такого теста не существует")
+        return Attempt.objects.filter(test=test, user=self.request.user)
+
+
+class GetAttemptResults(generics.RetrieveAPIView):
+    serializer_class = AttemptSerializer
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+
+    def get_object(self):
+        raise NotImplementedError

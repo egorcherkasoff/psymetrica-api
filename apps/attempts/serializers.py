@@ -1,4 +1,7 @@
 from rest_framework import serializers
+
+from apps.scales.serializers import ScaleSerializer
+
 from .models import Attempt, AttemptAnswer
 
 
@@ -32,7 +35,30 @@ class AttemptSerializer(serializers.ModelSerializer):
 
 class AttemptAnswerSerializer(serializers.ModelSerializer):
     option = serializers.UUIDField(source="option.id")
+    score = serializers.IntegerField(read_only=True)
+    scale = ScaleSerializer(read_only=True)
 
     class Meta:
         model = AttemptAnswer
         fields = ["id", "option", "answer", "score", "scale"]
+
+
+class AttemptResultsSerialzer(serializers.ModelSerializer):
+    started = serializers.SerializerMethodField(read_only=True)
+    finished = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Attempt
+        fields = [
+            "id",
+            "started",
+            "finished",
+            "test",
+            "user",
+        ]
+
+    def get_started(self, obj):
+        return obj.get_start_date()
+
+    def get_finished(self, obj):
+        return obj.get_finished_date()
