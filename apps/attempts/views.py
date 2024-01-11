@@ -62,6 +62,7 @@ class CreateAttemptAnswerCreateAPIView(generics.CreateAPIView):
         permissions.IsAuthenticated,
     ]
 
+    # TODO: добавить логику запрета ответа на один и тот же вопрос, запрет на ответ если попытка завершена
     def post(self, request, attempt_id, *args, **kwargs):
         try:
             attempt = Attempt.objects.get(id=attempt_id)
@@ -79,19 +80,22 @@ class CreateAttemptAnswerCreateAPIView(generics.CreateAPIView):
         )
 
         if serializer.is_valid(raise_exception=True):
-            option_id = serializer.validated_data["option"]
+            option_id = serializer.validated_data["option"]["id"]
             option = Option.objects.get(id=option_id)
             try:
-                score = option.scores.filter(deleted_at__isnull=True).first()
+                score_obj = option.scores.get(deleted_at__isnull=True)
+                score = score_obj.score
+                scale = score_obj.scale
             except OptionScore.DoesNotExist:
-                score = None
-
-            try:
-                scale = option.scales.filter(deleted_at__isnull=True).first()
-            except Scale.DoesNotExist:
+                score = 1
                 scale = None
 
-            answer = serializer.save(attempt=attempt)
+            serializer.save(
+                attempt=attempt,
+                option=option,
+                score=score,
+                scale=scale,
+            )
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -126,11 +130,11 @@ class UserTestAttemptsListAPIView(generics.ListAPIView):
         return Attempt.objects.filter(test=test, user=self.request.user)
 
 
-class GetAttemptResults(generics.RetrieveAPIView):
-    serializer_class = AttemptSerializer
-    permission_classes = [
-        permissions.IsAuthenticated,
-    ]
+# class GetAttemptResults(generics.RetrieveAPIView):
+#     serializer_class = AttemptSerializer
+#     permission_classes = [
+#         permissions.IsAuthenticated,
+#     ]
 
-    def get_object(self):
-        raise NotImplementedError
+#     def get_object(self):
+#         raise NotImplementedError

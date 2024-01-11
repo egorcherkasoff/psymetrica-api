@@ -43,22 +43,22 @@ class AttemptAnswerSerializer(serializers.ModelSerializer):
         fields = ["id", "option", "answer", "score", "scale"]
 
 
-class AttemptResultsSerialzer(serializers.ModelSerializer):
-    started = serializers.SerializerMethodField(read_only=True)
-    finished = serializers.SerializerMethodField(read_only=True)
+# class AttemptResultsSerialzer(serializers.ModelSerializer):
+#     started = serializers.SerializerMethodField(read_only=True)
+#     finished = serializers.SerializerMethodField(read_only=True)
 
-    class Meta:
-        model = Attempt
-        fields = [
-            "id",
-            "started",
-            "finished",
-            "test",
-            "user",
-        ]
+#     class Meta:
+#         model = Attempt
+#         fields = [
+#             "id",
+#             "started",
+#             "finished",
+#             "test",
+#             "user",
+#         ]
 
-    def get_started(self, obj):
-        return obj.get_start_date()
+#     def get_started(self, obj):
+#         return obj.get_start_date()
 
-    def get_finished(self, obj):
-        return obj.get_finished_date()
+#     def get_finished(self, obj):
+#         return obj.get_finished_date()
