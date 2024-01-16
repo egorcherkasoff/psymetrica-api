@@ -1,4 +1,5 @@
 from django.db import models
+from colorfield.fields import ColorField
 
 from apps.base.models import BaseModel
 
@@ -17,6 +18,7 @@ class Scale(BaseModel):
         related_name="scales",
         related_query_name="scale",
     )
+    color = ColorField(default="#ff0000", format="hex", verbose_name="Цвет")
 
     class Meta:
         verbose_name = "шкала"

@@ -48,6 +48,7 @@ THIRD_PARTY_APPS = [
     "rest_framework_simplejwt",
     "djoser",
     "rest_framework.authtoken",
+    "colorfield",
 ]
 
 LOCAL_APPS = [

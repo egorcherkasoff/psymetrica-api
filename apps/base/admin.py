@@ -10,10 +10,10 @@ class AdminGroup(ModelAdmin):
     model = Group
     fieldsets = (
         (
-            _("general information"),
+            _("Основная информация"),
             {"fields": ("name",)},
         ),
-        (_("permissions"), {"fields": ["permissions"]}),
+        (_("Права"), {"fields": ["permissions"]}),
     )
     add_fieldsets = (
         (

@@ -7,7 +7,7 @@ from .forms import CreateUserForm, UpdateUserForm
 User = get_user_model()
 
 
-# Register your models here.
+@admin.register(User)
 class AdminUser(UserAdmin):
     ordering = ["pkid"]
     model = User
@@ -25,7 +25,7 @@ class AdminUser(UserAdmin):
         ),
         (
             "Личная информация",
-            {"fields": ("first_name", "middle_name", "last_name")},
+            {"fields": ("first_name", "middle_name", "last_name", "avatar")},
         ),
         ("Даты", {"fields": ("created_at", "updated_at", "deleted_at")}),
         (
@@ -39,7 +39,15 @@ class AdminUser(UserAdmin):
             None,
             {
                 "classes": ("wide"),
-                "fields": ("email", "password1", "password2", "is_staff"),
+                "fields": (
+                    "email",
+                    "password1",
+                    "password2",
+                    "is_staff",
+                    "first_name",
+                    "last_name",
+                    "middle_name",
+                ),
             },
         ),
     )
@@ -54,7 +62,7 @@ class AdminUser(UserAdmin):
         "is_active",
         "is_staff",
     ]
+    list_display_links = ["id", "email", "first_name", "middle_name", "last_name"]
+    empty_value_display = "-информация отсутствует-"
+
     readonly_fields = ["created_at", "updated_at"]
-
-
-admin.site.register(User, AdminUser)
