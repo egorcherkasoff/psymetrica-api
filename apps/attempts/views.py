@@ -1,9 +1,9 @@
 from rest_framework import generics, permissions, status
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
+
 from apps.options.models import Option, OptionScore
 from apps.scales.models import Scale
-
 from apps.tests.models import Test
 
 from .exceptions import (

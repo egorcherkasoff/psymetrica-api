@@ -24,3 +24,7 @@ class BaseModel(models.Model):
         """совершает 'мягкое' удаление объекта, устанавливая дату удаления"""
         self.deleted_at = timezone.now()
         self.save(update_fields=["deleted_at"])
+
+    def hard_delete(self):
+        """совершает полное удаление объекта"""
+        super().delete()

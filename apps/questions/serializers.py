@@ -1,10 +1,7 @@
-from django.core.exceptions import ValidationError
-from PIL import Image
 from rest_framework import serializers
 
 from ..options.serializers import OptionSerializer
-from ..tests.models import Test
-from .models import Question, QuestionImage
+from .models import Question
 
 
 class QuestionSerializer(serializers.ModelSerializer):
@@ -29,10 +26,7 @@ class QuestionSerializer(serializers.ModelSerializer):
         return obj.get_type_display()
 
     def get_image(self, obj):
-        try:
-            return obj.images.get(deleted_at__isnull=True).image.url
-        except QuestionImage.DoesNotExist:
-            return None
+        return None
 
     def get_options(self, obj):
         options = obj.options.all()

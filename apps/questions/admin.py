@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 
-from .models import Question, QuestionImage
+from .models import Question
 
 
 class QuestionAdmin(ModelAdmin):
@@ -11,4 +11,3 @@ class QuestionAdmin(ModelAdmin):
 
 # Register your models here.
 admin.site.register(Question, QuestionAdmin)
-admin.site.register(QuestionImage)

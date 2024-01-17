@@ -10,10 +10,6 @@ class OptionAdmin(ModelAdmin):
         "id",
         "question",
         "number",
-        "text",
-        "min_range",
-        "max_range",
-        "image",
     ]
 
 

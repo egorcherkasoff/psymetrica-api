@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 from django.utils.translation import gettext_lazy as _
 
-from .models import AssignedTest, Test, Category
+from .models import AssignedTest, Category, Test
 
 
 @admin.register(Test)

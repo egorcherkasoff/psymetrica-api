@@ -18,7 +18,7 @@ from .exceptions import (
     QuestionNotForThisTest,
     QuestionWithNumberExists,
 )
-from .models import Question, QuestionImage
+from .models import Question
 from .serializers import QuestionCreateUpdateSerializer, QuestionSerializer
 
 User = get_user_model()

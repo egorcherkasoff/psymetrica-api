@@ -1,7 +1,6 @@
-import uuid
-
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models import Sum
 
 from apps.base.models import BaseModel
 
@@ -49,6 +48,33 @@ class Attempt(BaseModel):
         )
         return f'Попытка теста "{self.test}" пользователя {self.user} от {self.get_start_date()}. {finished}'
 
+    def get_results(self):
+        """возвращает результаты попытки"""
+        if self.is_finished:
+            scales = []
+            scores = []
+            # для каждого объекта attemptanswer считаем сумму баллов по шкалам (если их нет, то возвращаем просто сумму баллов)
+            for answer in self.answers.filter(deleted_at__isnull=True):
+                if answer.score:
+                    scores = (
+                        self.answers.filter(deleted_at__isnull=True)
+                        .values("scale")
+                        .annotate(score=Sum("score"))
+                    )
+                if answer.scale:
+                    scales.append(answer.scale)
+            return scales, scores
+        return None
+
+    def get_unreviewed_answers(self):
+        """возвращает вопросы с типом "OPEN", которые не оценены"""
+        return self.answers.filter(
+            deleted_at__isnull=True,
+            answer__isnull=False,
+            answer__score=0,
+            answer__deleted_at__isnull=True,
+        )
+
     @property
     def is_finished(self):
         return True if self.finished is not None else False
@@ -79,7 +105,7 @@ class AttemptAnswer(BaseModel):
         related_query_name="answer",
     )
 
-    # поле заполняется только при типе вопроса OPEN или SCALE
+    # поле заполняется только при типе вопроса OPEN или RANGE
     answer = models.CharField(
         max_length=255, verbose_name="Ответ", blank=True, null=True
     )
@@ -88,6 +114,7 @@ class AttemptAnswer(BaseModel):
     score = models.SmallIntegerField(
         default=0, verbose_name="Баллы"
     )  # выставляется вручую если вопрос типа OPEN
+
     scale = models.ForeignKey(
         to=Scale, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Шкала"
     )
@@ -96,6 +123,7 @@ class AttemptAnswer(BaseModel):
         verbose_name = "ответ попытки"
         verbose_name_plural = "ответы попытки"
         ordering = ["-attempt", "-created_at"]
+        unique_together = ["attempt", "option"]
 
     def __str__(self):
         return f"Ответ попытки {self.attempt.id} на {self.option.question}"

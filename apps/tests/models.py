@@ -46,7 +46,7 @@ class Test(BaseModel):
 
     category = models.ForeignKey(
         to=Category,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name="tests",
         verbose_name="категория",
         null=True,
@@ -67,6 +67,13 @@ class Test(BaseModel):
         verbose_name_plural = "тесты"
         ordering = ["-created_at"]
 
+    @property
+    def actual_question_count(self):
+        """возвращает кол-во вопросов, не являющихся вопросами intro"""
+        return self.questions.exclude(
+            question__type="intro", deleted_at__isnull=True
+        ).count()
+
     def __str__(self):
         return f'Тест "{self.title}" от пользователя "{self.author}"'
 
@@ -77,6 +84,16 @@ class Test(BaseModel):
     def get_scales(self):
         """возвращает все шкалы теста"""
         return self.scales.filter(deleted_at__isnull=True)
+
+    def get_attempts(self):
+        """возвращает все попытки теста"""
+        return self.attempts.filter(
+            deleted_at__isnull=True,
+        )
+
+    def get_user_attempts(self, user):
+        """возвращает все попытки теста для какого либо пользователя"""
+        return self.attempts.filter(deleted_at__isnull=True, user=user)
 
     def delete(self):
         """выполняет мягкое удаление теста и зависимых моделей (например, вопросы)"""
