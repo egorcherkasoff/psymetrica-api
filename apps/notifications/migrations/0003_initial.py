@@ -9,24 +9,20 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("attempts", "0004_initial"),
+        ("notifications", "0002_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="attempt",
+            model_name="notification",
             name="user",
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name="attempts",
-                related_query_name="attempt",
+                related_name="notifications",
+                related_query_name="notification",
                 to=settings.AUTH_USER_MODEL,
                 verbose_name="Пользователь",
             ),
-        ),
-        migrations.AlterUniqueTogether(
-            name="attemptanswer",
-            unique_together={("attempt", "option")},
         ),
     ]

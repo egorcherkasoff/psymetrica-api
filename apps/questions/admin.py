@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 
-from .models import Question
+from .models import Question, QuestionGroup
 
 
 class QuestionAdmin(ModelAdmin):
@@ -11,3 +11,4 @@ class QuestionAdmin(ModelAdmin):
 
 # Register your models here.
 admin.site.register(Question, QuestionAdmin)
+admin.site.register(QuestionGroup)

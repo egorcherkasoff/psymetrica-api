@@ -9,6 +9,7 @@ from .models import AssignedTest, Test
 from .pagination import TestPagination
 from .permissions import IsOwner
 from .serializers import TestCreateUpdateSerializer, TestSerializer
+from .filters import TestFilter
 
 User = get_user_model()
 
@@ -22,6 +23,8 @@ class TestListAPIView(generics.ListAPIView):
     ]
     queryset = Test.objects.filter(deleted_at__isnull=True)
     pagination_class = TestPagination
+    filterset_class = TestFilter
+    ordering_fields = ("created_at",)
 
 
 class TestDetailAPIView(generics.RetrieveAPIView):

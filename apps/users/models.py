@@ -27,9 +27,6 @@ class User(AbstractBaseUser, BaseModel, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 
-    # TODO: подумать как обыграть юзернеймы... или просто выводить первую часть почты?
-    username = models.CharField(unique=True, max_length=100, blank=True)
-
     # личные данные пользователя
     first_name = models.CharField(
         max_length=50, verbose_name="имя", null=True, blank=True

@@ -40,6 +40,10 @@ class Attempt(BaseModel):
         verbose_name_plural = "попытки"
         ordering = ["-created_at"]
 
+    @property
+    def is_finished(self):
+        return True if self.finished is not None else False
+
     def __str__(self):
         finished = (
             "Не завершена"
@@ -55,12 +59,11 @@ class Attempt(BaseModel):
             scores = []
             # для каждого объекта attemptanswer считаем сумму баллов по шкалам (если их нет, то возвращаем просто сумму баллов)
             for answer in self.answers.filter(deleted_at__isnull=True):
-                if answer.score:
-                    scores = (
-                        self.answers.filter(deleted_at__isnull=True)
-                        .values("scale")
-                        .annotate(score=Sum("score"))
-                    )
+                scores = (
+                    self.answers.filter(deleted_at__isnull=True)
+                    .values("scale")
+                    .annotate(score=Sum("score"))
+                )
                 if answer.scale:
                     scales.append(answer.scale)
             return scales, scores
@@ -74,10 +77,6 @@ class Attempt(BaseModel):
             answer__score=0,
             answer__deleted_at__isnull=True,
         )
-
-    @property
-    def is_finished(self):
-        return True if self.finished is not None else False
 
     def get_start_date(self):
         return self.created_at.strftime("%d.%m.%Y в %H:%M")

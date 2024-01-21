@@ -23,10 +23,10 @@ urlpatterns = [
     path("api/v1/auth/", include("djoser.urls.jwt")),
     # todo привести урлы в порядок
     path("api/v1/tests/", include("apps.tests.urls")),
-    path("api/v1/questions/", include("apps.questions.urls")),
-    path("api/v1/options/", include("apps.options.urls")),
-    path("api/v1/scales/", include("apps.scales.urls")),
-    path("api/v1/attempts/", include("apps.attempts.urls")),
+    # path("api/v1/questions/", include("apps.questions.urls")),
+    # path("api/v1/options/", include("apps.options.urls")),
+    # path("api/v1/scales/", include("apps.scales.urls")),
+    # path("api/v1/attempts/", include("apps.attempts.urls")),
 ]
 
 admin.site.site_title = "Psymetrica Admin"

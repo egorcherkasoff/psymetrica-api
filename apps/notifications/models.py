@@ -1,7 +1,7 @@
-from django.db import models
-from apps.base.models import BaseModel
 from django.contrib.auth import get_user_model
+from django.db import models
 
+from apps.base.models import BaseModel
 from apps.tests.models import Test
 
 User = get_user_model()
@@ -20,7 +20,7 @@ class Notification(BaseModel):
         to=User,
         on_delete=models.CASCADE,
         verbose_name="Пользователь",
-        realated_name="notifications",
+        related_name="notifications",
         related_query_name="notification",
     )
 
@@ -28,13 +28,22 @@ class Notification(BaseModel):
         to=Test,
         on_delete=models.CASCADE,
         verbose_name="Тест",
-        realated_name="notifications",
+        related_name="notifications",
         related_query_name="notification",
     )
 
     text = models.TextField(max_length=255, verbose_name="Текст уведомления")
 
-    subject = models.CharField(choice=NotificationTypes, max_length=255)
+    subject = models.CharField(
+        choices=NotificationTypes.choices,
+        max_length=30,
+        verbose_name="Тема уведомления",
+    )
 
     def __str__(self):
         return self.text
+
+    class Meta:
+        verbose_name = "уведомление"
+        verbose_name_plural = "уведомления"
+        ordering = ["-created_at"]
