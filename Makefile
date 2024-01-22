@@ -18,3 +18,7 @@ up:
 
 createsuperuser:
 	docker exec -it psymetrica-app python /app/manage.py createsuperuser
+
+populate:
+	docker exec -it psymetrica-app python /app/manage.py prepopulate
+
