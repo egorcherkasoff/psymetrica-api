@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
-from django.utils.translation import gettext_lazy as _
 
 from .models import AssignedTest, Category, Test
 
@@ -11,11 +10,11 @@ class AdminTest(ModelAdmin):
     model = Test
     fieldsets = (
         (
-            _("Основная информация"),
+            "Основная информация",
             {"fields": ("title", "description", "category", "author", "is_published")},
         ),
         (
-            _("Даты"),
+            "Даты",
             {"fields": ("created_at", "updated_at", "deleted_at")},
         ),
     )
@@ -50,11 +49,11 @@ class AdminAssignedTest(ModelAdmin):
     model = Test
     fieldsets = (
         (
-            _("Основная информация"),
+            "Основная информация",
             {"fields": ("test", "assigned_to", "assigned_by")},
         ),
         (
-            _("Даты"),
+            "Даты",
             {"fields": ("created_at", "updated_at", "deleted_at")},
         ),
     )
@@ -91,11 +90,11 @@ class AdminCategory(ModelAdmin):
     model = Test
     fieldsets = (
         (
-            _("Основная информация"),
+            "Основная информация",
             {"fields": ("title",)},
         ),
         (
-            _("Даты"),
+            "Даты",
             {"fields": ("created_at", "updated_at", "deleted_at")},
         ),
     )

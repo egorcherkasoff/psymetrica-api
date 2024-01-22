@@ -22,7 +22,8 @@ class TestFilter(filters.FilterSet):
     title = filters.CharFilter(lookup_expr="icontains")
     description = filters.CharFilter(lookup_expr="icontains")
     author = AuthorFilter()
+    category = filters.CharFilter(lookup_expr="iexact")
 
     class Meta:
         model = Test
-        fields = ["title", "description", "author"]
+        fields = ["title", "description", "author", "category"]

@@ -58,6 +58,7 @@ class Test(BaseModel):
         populate_from="title",
         unique=True,
     )
+    # TODO: хотелось бы добавить популярность (кол-во прохождений(общее и за месяц))
 
     # в проде поставить на false, поскольку тесты должны пройти модерацию, чтобы стать публичными
     is_published = models.BooleanField(default=True)
@@ -70,12 +71,14 @@ class Test(BaseModel):
     @property
     def actual_question_count(self):
         """возвращает кол-во вопросов, не являющихся вопросами intro"""
-        return self.questions.exclude(
-            question__type="intro", deleted_at__isnull=True
-        ).count()
+        return self.questions.exclude(type="intro", deleted_at__isnull=True).count()
 
     def __str__(self):
         return f'Тест "{self.title}" от пользователя "{self.author}"'
+
+    # TODO: перенести в basemodel
+    def get_created_at(self):
+        return self.created_at.strftime("%d.%m.%Y в %H:%M")
 
     def get_questions(self):
         """возвращает все вопросы теста"""
