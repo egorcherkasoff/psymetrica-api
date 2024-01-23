@@ -43,7 +43,7 @@ class User(AbstractBaseUser, BaseModel, PermissionsMixin):
         null=True,
         blank=True,
         verbose_name="Фото профиля",
-        # default="avatars/default.png", закинуть картинку...
+        default="avatars/default.jpg",
     )
 
     USERNAME_FIELD = "email"
@@ -57,11 +57,19 @@ class User(AbstractBaseUser, BaseModel, PermissionsMixin):
         ordering = ["-updated_at"]
 
     def __str__(self):
-        return f"{self.last_name} {f'{self.first_name[0]}.' if self.first_name else ''} {f'{self.middle_name[0]}.' if self.middle_name else ''}".strip()
+        try:
+            return f"{self.last_name} {f'{self.first_name[0]}.' if self.first_name else ''} {f'{self.middle_name[0]}.' if self.middle_name else ''}".strip()
+        except AttributeError:
+            return f"{self.email.split('@')[0]}"
 
+    @property
     def get_full_name(self):
         """возвращает полное имя пользователя"""
         return f"{self.first_name} {self.middle_name} {self.last_name}".strip()
+
+    def get_avatar(self):
+        """возвращает урл аватар пользователя"""
+        return self.avatar.url if self.avatar is not None else None
 
     def get_tests(self):
         """возвращет все тесты пользователя"""

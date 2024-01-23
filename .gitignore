@@ -4,7 +4,10 @@
 
 #staticfiles and mediafiles
 staticfiles
-mediafiles
+mediafiles/*
+mediafiles/avatars/*
+!mediafiles/avatars
+!mediafiles/avatars/default.jpg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

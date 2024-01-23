@@ -67,6 +67,9 @@ class Test(BaseModel):
         verbose_name = "тест"
         verbose_name_plural = "тесты"
         ordering = ["-created_at"]
+        permissions = [
+            ("can_assign_tests", "Может назначать тесты"),
+        ]
 
     @property
     def actual_question_count(self):
