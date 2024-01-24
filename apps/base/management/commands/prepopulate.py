@@ -1,17 +1,18 @@
-from typing import Any
-from django.core.management import BaseCommand
-from django.contrib.auth import get_user_model
-from apps.tests.models import Test
-from apps.questions.models import Question
 import secrets
+from typing import Any
+
+from django.contrib.auth import get_user_model
+from django.core.management import BaseCommand
+
 from apps.options.models import (
+    ImageOption,
     Option,
     OptionScore,
-    TextOption,
-    ImageOption,
     RangeOption,
+    TextOption,
 )
-
+from apps.questions.models import Question
+from apps.tests.models import Test
 
 User = get_user_model()
 

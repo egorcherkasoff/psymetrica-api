@@ -3,7 +3,7 @@ from rest_framework import serializers
 from apps.scales.serializers import ScaleSerializer
 from apps.users.serializers import UserSerializer
 
-from .models import AssignedTest, Test, Category
+from .models import AssignedTest, Category, Test
 
 
 class TestListSerializer(serializers.ModelSerializer):
@@ -110,7 +110,7 @@ class TestUpdateSerializer(TestCreateSerializer):
 class TestAssignSerializer(serializers.ModelSerializer):
     """сериализатор для назначения теста"""
 
-    test = serializers.UUIDField(source="test.id", read_only=True)
+    test = serializers.SerializerMethodField(read_only=True)
     assigned_by = serializers.SerializerMethodField(read_only=True)
     assigned_to = serializers.SerializerMethodField()
 
@@ -126,6 +126,11 @@ class TestAssignSerializer(serializers.ModelSerializer):
     def get_assigned_to(self, obj):
         assigned_by = obj.assigned_by
         serializer = UserSerializer(assigned_by, many=False)
+        return serializer.data
+
+    def get_test(self, obj):
+        test = obj.test
+        serializer = TestDetailSerializer(test, many=False)
         return serializer.data
 
 

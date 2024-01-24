@@ -2,6 +2,8 @@ from rest_framework import permissions
 
 
 class CanCreateTestsOrNot(permissions.BasePermission):
+    """может ли юзер создавать тесты"""
+
     def has_permission(self, request, view):
         if request.user.is_superuser:
             return True
@@ -9,6 +11,8 @@ class CanCreateTestsOrNot(permissions.BasePermission):
 
 
 class CanUpdateDeleteTestsOrNot(permissions.BasePermission):
+    """может ли юзер обновлять или удалять тесты"""
+
     def has_permission(self, request, view):
         if request.user.is_superuser:
             return True
@@ -21,7 +25,24 @@ class CanUpdateDeleteTestsOrNot(permissions.BasePermission):
 
 
 class CanAssignTestsOrNot(permissions.BasePermission):
+    """может ли юзер назначать тесты"""
+
     def has_permission(self, request, view):
         if request.user.is_superuser:
             return True
         return request.user.has_perm("tests.can_assign_tests")
+
+
+class IsOwnerOrNot(permissions.BasePermission):
+    """является ли пользователь владельцем теста"""
+
+    def has_permission(self, request, view):
+        if request.user.is_superuser:
+            return True
+        return request.user.has_perm("tests.can_assign_tests")
+
+    def has_object_permission(self, request, view, obj):
+        print("checking obj perm...")
+        if request.user.is_superuser:
+            return True
+        return obj.author == request.user

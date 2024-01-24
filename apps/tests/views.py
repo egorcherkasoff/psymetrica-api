@@ -2,25 +2,25 @@ from django.contrib.auth import get_user_model
 from rest_framework import generics, permissions, status
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
-from .exceptions import CantAssignTests, CantAssignTestsForYourself, NotYourTest
-from .models import AssignedTest, Test, Category
+from .exceptions import CantAssignTestsForYourself
+from .filters import TestFilter
+from .models import Category, Test
 from .pagination import TestPagination
 from .permissions import (
     CanAssignTestsOrNot,
     CanCreateTestsOrNot,
     CanUpdateDeleteTestsOrNot,
+    IsOwnerOrNot,
 )
 from .serializers import (
-    TestCreateSerializer,
-    TestUpdateSerializer,
-    TestDetailSerializer,
-    TestListSerializer,
     CategorySerializer,
     TestAssignSerializer,
+    TestCreateSerializer,
+    TestDetailSerializer,
+    TestListSerializer,
+    TestUpdateSerializer,
 )
-from .filters import TestFilter
 
 User = get_user_model()
 
@@ -168,22 +168,30 @@ class AssignTest(generics.CreateAPIView):
                 user = User.objects.get(id=request.data["assigned_to"])
             except User.DoesNotExist:
                 raise NotFound("Такого пользователя не существует")
+            if user == request.user:
+                raise CantAssignTestsForYourself
             serializer.save(assigned_by=request.user, test=test, assigned_to=user)
 
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
 
-class TestsAssignedToUserListAPIView(generics.ListAPIView):
-    """Выводит список назначенных пользователю тестов"""
+class TestAssignsList(generics.ListAPIView):
+    """Эндпоинт для получения списка назначенных тестов"""
 
     permission_classes = [
         permissions.IsAuthenticated,
+        IsOwnerOrNot,
     ]
-    serializer_class = TestListSerializer
-    pagination_class = TestPagination
+    serializer_class = TestAssignSerializer
+
+    def get_object(self):
+        try:
+            test = Test.objects.get(slug=self.kwargs["slug"], deleted_at__isnull=True)
+        except Test.DoesNotExist:
+            raise NotFound("Такого теста не существует")
+        return test
 
     def get_queryset(self):
-        return Test.objects.filter(
-            assignments__assigned_to__id=self.kwargs.get("user_id"),
-            deleted_at__isnull=True,
-        )
+        test = self.get_object()
+        self.check_object_permissions(self.request, test)
+        return test.assignments.filter(deleted_at__isnull=True)

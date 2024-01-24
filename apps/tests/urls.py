@@ -13,10 +13,9 @@ urlpatterns = [
         views.AssignTest.as_view(),
         name="test-assign",
     ),
-    # перенести в apps.users
     path(
-        "users/<uuid:id>/assigned/",
-        views.TestsAssignedToUserListAPIView.as_view(),
-        name="test-assigned-to-user",
+        "<str:slug>/assignments",
+        views.TestAssignsList.as_view(),
+        name="test-assignments",
     ),
 ]
