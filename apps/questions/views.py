@@ -1,11 +1,8 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Q
-from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions, status
 from rest_framework.exceptions import NotFound
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from apps.base.services import sort_by_number, validate_image
 
@@ -18,8 +15,10 @@ from .exceptions import (
     QuestionNotForThisTest,
     QuestionWithNumberExists,
 )
+from .permissions import IsQuestionTestAuthor
+
 from .models import Question
-from .serializers import QuestionCreateUpdateSerializer, QuestionSerializer
+from .serializers import QuestionUpdateSerializer, QuestionCreateSerializer
 
 User = get_user_model()
 
@@ -34,65 +33,40 @@ def check_question_number(test, number, create=True):
             raise IncorrectQuestionNumber
 
 
-class TestQuestionsListAPIView(generics.ListAPIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = QuestionSerializer
-
-    def get_queryset(self):
-        slug = self.kwargs.get("test_slug")
-        try:
-            test = Test.objects.get(slug=slug)
-        except Test.DoesNotExist:
-            raise NotFound("Такого теста не существует.")
-        return test.questions.filter(deleted_at__isnull=True)
-
-
-class QuestionCreateAPIView(generics.CreateAPIView):
+class QuestionCreate(generics.CreateAPIView):
     """Эндпоинт для создания вопроса"""
 
-    permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = QuestionCreateUpdateSerializer
+    permission_classes = [
+        permissions.IsAuthenticated,
+        IsQuestionTestAuthor,
+    ]
+    serializer_class = QuestionCreateSerializer
     parser_classes = (MultiPartParser,)
 
-    def post(self, request, test_slug, *args, **kwargs):
+    def get_object(self, test_id):
         try:
-            test = Test.objects.get(slug=test_slug)
+            test = Test.objects.get(id=test_id)
         except Test.DoesNotExist:
-            raise NotFound("Такого теста не существует.")
+            raise NotFound("Такого теста не существует")
+        self.check_object_permissions(self.request, test)
+        return test
 
-        if test.author != request.user:
-            raise CantAddQuestionsForOthersTest
-
-        question_number = int(request.data.get("number"))
-
-        # прикрепил ли юзер картинку
-        try:
-            image_data = request.data.pop("image")[0]
-        except AttributeError:
-            image_data = None
-
-        if test.questions.filter(number=question_number).exists():
-            raise QuestionWithNumberExists
-
-        check_question_number(test, question_number)
-
+    def post(self, request, *args, **kwargs):
+        test_id = request.data.get("test_id")
+        test = self.get_object(test_id)
         serializer = self.serializer_class(
             data=request.data, context={"request": request}
         )
         if serializer.is_valid(raise_exception=True):
-            question = serializer.save(test=test)
-            # создаем картинку если картинка была
-            if image_data:
-                QuestionImage.objects.create(question=question, image=image_data)
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+            serializer.save(test=test)
+        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
 
 class QuestionUpdateAPIView(generics.UpdateAPIView):
     """Эндпоинт для обновления вопроса"""
 
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = QuestionCreateUpdateSerializer
+    serializer_class = QuestionUpdateSerializer
     parser_classes = (MultiPartParser,)
 
     def patch(self, request, test_slug, id, *args, **kwargs):

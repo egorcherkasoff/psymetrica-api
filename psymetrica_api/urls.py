@@ -26,8 +26,8 @@ urlpatterns = [
         "api/tests/",
         include("apps.tests.urls"),
     ),
-    path("api/users/", include("apps.users.urls"))
-    # path("api/v1/questions/", include("apps.questions.urls")),
+    path("api/users/", include("apps.users.urls")),
+    path("api/questions/", include("apps.questions.urls")),
     # path("api/v1/options/", include("apps.options.urls")),
     # path("api/v1/scales/", include("apps.scales.urls")),
     # path("api/v1/attempts/", include("apps.attempts.urls")),

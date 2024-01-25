@@ -11,7 +11,9 @@ User = get_user_model()
 class Category(BaseModel):
     """Модель категории"""
 
-    title = models.CharField(db_index=True, max_length=255, verbose_name="Название")
+    title = models.CharField(
+        db_index=True, max_length=255, verbose_name="Название", unique=True
+    )
     slug = AutoSlugField(
         always_update=True,
         populate_from="title",
@@ -78,10 +80,6 @@ class Test(BaseModel):
 
     def __str__(self):
         return f'Тест "{self.title}" от пользователя "{self.author}"'
-
-    # TODO: перенести в basemodel
-    def get_created_at(self):
-        return self.created_at.strftime("%d.%m.%Y в %H:%M")
 
     def get_questions(self):
         """возвращает все вопросы теста"""

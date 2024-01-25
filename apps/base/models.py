@@ -28,3 +28,6 @@ class BaseModel(models.Model):
     def hard_delete(self):
         """совершает полное удаление объекта"""
         super().delete()
+
+    def get_created_at(self):
+        return self.created_at.strftime("%d.%m.%Y в %H:%M")

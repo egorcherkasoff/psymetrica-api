@@ -135,7 +135,7 @@ class TestAssignSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    """сериализатор для списка категорий"""
+    """сериализатор для категорий"""
 
     class Meta:
         model = Category

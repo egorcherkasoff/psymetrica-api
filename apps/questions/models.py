@@ -67,7 +67,7 @@ class Question(BaseModel):
         verbose_name="Номер вопроса",
         default=1,
     )
-
+    # TODO: убрать default, поставть null true
     image = models.ImageField(
         default="avatars/default.svg",
         upload_to=filename_to_uuid,
@@ -86,9 +86,19 @@ class Question(BaseModel):
         """возвращает все варианты ответов к тесту"""
         return self.options.filter(deleted_at__isnull=True)
 
+    @property
+    def options_count(self):
+        """возвращает кол-во вариантов ответов к вопросу"""
+        return self.get_options().count()
+
     def get_image(self):
         """возвращает урл картинки вопроса"""
         return self.image.url if self.image else None
+
+    def clean(self):
+        """доп валидация для номера вопроса"""
+        print("validated...")
+        raise NotImplementedError
 
     def delete(self):
         """выполняет мягкое удаление вопроса и зависимых моделей (например, варианты ответов)"""
