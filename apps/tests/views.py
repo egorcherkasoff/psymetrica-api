@@ -3,6 +3,9 @@ from rest_framework import generics, permissions, status
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 
+from apps.questions.pagination import QuestionPagingation
+from apps.questions.serializers import QuestionListSerializer
+
 from .exceptions import CantAssignTestsForYourself
 from .filters import TestFilter
 from .models import Category, Test
@@ -195,3 +198,18 @@ class TestAssignsList(generics.ListAPIView):
         test = self.get_object()
         self.check_object_permissions(self.request, test)
         return test.assignments.filter(deleted_at__isnull=True)
+
+
+class TestQuestionsList(generics.ListAPIView):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+    serializer_class = QuestionListSerializer
+    pagination_class = QuestionPagingation
+
+    def get_queryset(self):
+        try:
+            test = Test.objects.get(slug=self.kwargs["slug"], deleted_at__isnull=True)
+        except Test.DoesNotExist:
+            raise NotFound("Такого теста не существует")
+        return test.questions

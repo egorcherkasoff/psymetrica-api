@@ -31,3 +31,6 @@ class BaseModel(models.Model):
 
     def get_created_at(self):
         return self.created_at.strftime("%d.%m.%Y в %H:%M")
+
+    def get_updated_at(self):
+        return self.updated_at.strftime("%d.%m.%Y в %H:%M")

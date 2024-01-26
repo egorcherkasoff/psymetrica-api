@@ -9,26 +9,26 @@ from .models import Question
 class QuestionListSerializer(serializers.ModelSerializer):
     """сериализатор для списка вопросов"""
 
-    type = serializers.CharField(source="get_type_display")
-    options = serializers.SerializerMethodField()
+    options = serializers.IntegerField(source="options_count")
     image = serializers.SerializerMethodField()
+    type = serializers.SerializerMethodField()
 
     class Meta:
         model = Question
         fields = [
             "id",
-            "test",
+            "type",
             "text",
             "image",
             "is_required",
             "options",
         ]
 
-    def get_options(self, obj):
-        return obj.options_count
-
     def get_image(self, obj):
         return obj.get_image()
+
+    def get_type(self, obj):
+        return obj.get_type_display()
 
 
 class QuestionDetailSerializer(QuestionListSerializer):
@@ -61,6 +61,7 @@ class QuestionDetailSerializer(QuestionListSerializer):
         return obj.get_created_at()
 
 
+# TODO: сделать валидацию по полю image тут и в update, и еще number. разобраться почему required false по дефолту...
 class QuestionCreateSerializer(serializers.ModelSerializer):
     """сериализатор создания вопроса"""
 
@@ -92,27 +93,30 @@ class QuestionCreateSerializer(serializers.ModelSerializer):
 
 
 class QuestionUpdateSerializer(serializers.ModelSerializer):
-    """сериализатор обновления вопроса"""
-
-    class Meta:
-        model = Question
-        fields = ["number", "text", "type", "image", "is_required"]
-
-
-class QuestionUpdateSerializer(serializers.ModelSerializer):
     """сериализатор изменения вопроса"""
 
-    test = TestDetailSerializer(read_only=True)
-    image = serializers.ImageField(required=False)
+    test = TestDetailSerializer(many=False, required=False, read_only=True)
+    image = serializers.SerializerMethodField()
+    updated_at = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Question
-        fields = ["test", "number", "type", "text", "image", "is_required"]
+        fields = [
+            "id",
+            "test",
+            "number",
+            "type",
+            "text",
+            "image",
+            "is_required",
+            "updated_at",
+        ]
 
+    def get_updated_at(self, obj):
+        return obj.get_updated_at()
 
-class QuestionUpdateSerializer(serializers.ModelSerializer):
-    """сериализатор обновления вопроса"""
+    def get_type(self, obj):
+        return obj.get_type_display()
 
-    class Meta:
-        model = Question
-        fields = ["number", "text", "type", "image", "is_required"]
+    def get_image(self, obj):
+        return obj.image.url if obj.image else None

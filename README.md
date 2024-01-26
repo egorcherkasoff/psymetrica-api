@@ -1,6 +1,11 @@
 # Psymetrica API
 
-To run create .env file with following data:
+
+**Psymetrica** - это платформа для тестов по психологии, на которой психологи могут создавать и назначать пользователям тесты, а они их проходить.
+
+_Учтите, что проект еще в процессе разработки, могут присутствовать баги, нереализованный функционал!_
+
+Для запуска dev-версии вам необходимо создать .env файл в корневой папке проекта со следующим содержимым:
 
 ```
 SECRET_KEY=your secret key
@@ -18,7 +23,7 @@ CELERY_FLOWER_USER=flower admin user
 CELERY_FLOWER_PASSWORD=flower admin password
 ```
 
-For example
+Пример:
 
 ```
 SECRET_KEY=mysecret_key
@@ -36,7 +41,7 @@ CELERY_FLOWER_USER=admin
 CELERY_FLOWER_PASSWORD=123123
 ```
 
-Then run
+Если вы используете пример .env файла указанный мной, далее вам необходимо прописать следующие команды в терминале (если у вас установлен docker, docker-compose):
 
 ```
 docker-compose build
@@ -46,16 +51,19 @@ docker-compose build
 docker-compose up
 ```
 
-Now navigate to https://localhost:8080 and site should be working
+После завершения сборки и запуска, откройте браузер и перейдите по адресу http://localhost:8080/redoc, чтобы открыть документацю API в формате **Redocly** (openapi)
 
-You can also create superuser with following command
-
-```
-make createsuperuser
-```
-
-or
+Также вы можете создать супер пользователя с помощью команды ниже:
 
 ```
 docker exec -it psymetrica-app python /app/manage.py createsuperuser
 ```
+
+Для создания example data, вы можете воспользоваться этой командой:
+
+```
+docker exec -it psymetrica-app python /app/manage.py prepopulate
+```
+
+Чтобы зайти в панель администратора, перейдите на http://localhost:8080/admin, после чего введите данные для входа.
+

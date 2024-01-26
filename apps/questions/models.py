@@ -95,10 +95,11 @@ class Question(BaseModel):
         """возвращает урл картинки вопроса"""
         return self.image.url if self.image else None
 
-    def clean(self):
-        """доп валидация для номера вопроса"""
-        print("validated...")
-        raise NotImplementedError
+    # TODO: сделать! валидацию, её юзать потом в сериализаторае
+    # def clean(self):
+    #     """доп валидация для номера вопроса"""
+    #     print("validated...")
+    #     raise NotImplementedError
 
     def delete(self):
         """выполняет мягкое удаление вопроса и зависимых моделей (например, варианты ответов)"""
