@@ -212,4 +212,4 @@ class TestQuestionsList(generics.ListAPIView):
             test = Test.objects.get(slug=self.kwargs["slug"], deleted_at__isnull=True)
         except Test.DoesNotExist:
             raise NotFound("Такого теста не существует")
-        return test.questions
+        return test.get_questions()

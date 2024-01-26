@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from apps.tests.serializers import TestDetailSerializer
 
-from ..options.serializers import OptionSerializer
+from ..options.serializers import OptionListSerizlier
 from .models import Question
 
 
@@ -11,7 +11,6 @@ class QuestionListSerializer(serializers.ModelSerializer):
 
     options = serializers.IntegerField(source="options_count")
     image = serializers.SerializerMethodField()
-    type = serializers.SerializerMethodField()
 
     class Meta:
         model = Question
@@ -27,17 +26,14 @@ class QuestionListSerializer(serializers.ModelSerializer):
     def get_image(self, obj):
         return obj.get_image()
 
-    def get_type(self, obj):
-        return obj.get_type_display()
-
 
 class QuestionDetailSerializer(QuestionListSerializer):
     """сериализатор отображения одного вопроса"""
 
-    type = serializers.CharField(source="get_type_display")
-    options = OptionSerializer(many=True)
+    options = serializers.SerializerMethodField()
     image = serializers.SerializerMethodField()
     created_at = serializers.SerializerMethodField()
+    test = TestDetailSerializer(many=False)
 
     class Meta:
         model = Question
@@ -54,7 +50,7 @@ class QuestionDetailSerializer(QuestionListSerializer):
 
     def get_options(self, obj):
         options = obj.get_options()
-        serializer = OptionSerializer(options, many=True)
+        serializer = OptionListSerizlier(options, many=True)
         return serializer.data
 
     def get_created_at(self, obj) -> str:
@@ -68,7 +64,6 @@ class QuestionCreateSerializer(serializers.ModelSerializer):
     test_id = serializers.UUIDField(write_only=True, source="test.id")
     test = TestDetailSerializer(many=False, required=False, read_only=True)
     image = serializers.ImageField(required=False)
-    type = serializers.CharField()
     created_at = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -87,9 +82,6 @@ class QuestionCreateSerializer(serializers.ModelSerializer):
 
     def get_created_at(self, obj):
         return obj.get_created_at()
-
-    def get_type(self, obj):
-        return obj.get_type_display()
 
 
 class QuestionUpdateSerializer(serializers.ModelSerializer):
@@ -114,9 +106,6 @@ class QuestionUpdateSerializer(serializers.ModelSerializer):
 
     def get_updated_at(self, obj):
         return obj.get_updated_at()
-
-    def get_type(self, obj):
-        return obj.get_type_display()
 
     def get_image(self, obj):
         return obj.image.url if obj.image else None

@@ -76,7 +76,7 @@ class ImageOption(BaseModel):
         verbose_name_plural = "варианты ответа с картинкой"
 
     def __str__(self):
-        return self.text
+        return f"{self.option} с картинкой"
 
 
 class RangeOption(BaseModel):
@@ -88,7 +88,7 @@ class RangeOption(BaseModel):
         related_name="range_option",
         verbose_name="Вариант ответа",
     )
-
+    # было бы range на value переименовать )
     min_range = models.IntegerField(verbose_name="Минимальный порог")
     max_range = models.IntegerField(verbose_name="Максимальный порог")
 
@@ -97,17 +97,20 @@ class RangeOption(BaseModel):
         verbose_name_plural = "варианты ответа с картинкой"
 
     def __str__(self):
-        return self.text
+        return f"{self.option} от {self.min_range} до {self.max_range}"
 
 
 class OptionScore(BaseModel):
     """модель баллов для варианта ответа"""
 
     option = models.ForeignKey(
-        to=Option, on_delete=models.CASCADE, related_name="scores"
+        to=Option,
+        on_delete=models.CASCADE,
+        related_name="scores",
+        verbose_name="Вариант ответа",
     )
     scale = models.ForeignKey(
-        to=Scale, on_delete=models.CASCADE, null=True, blank=True
+        to=Scale, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Шкала"
     )  # может быть пустым, при отсутствии шкал
 
     score = models.SmallIntegerField(verbose_name="Баллы", default=1)

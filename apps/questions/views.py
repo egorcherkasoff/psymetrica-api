@@ -7,7 +7,11 @@ from rest_framework.response import Response
 from ..tests.models import Test
 from .models import Question
 from .permissions import IsQuestionTestAuthor
-from .serializers import QuestionCreateSerializer, QuestionUpdateSerializer
+from .serializers import (
+    QuestionCreateSerializer,
+    QuestionDetailSerializer,
+    QuestionUpdateSerializer,
+)
 
 User = get_user_model()
 
@@ -95,4 +99,17 @@ class QuestionDelete(generics.DestroyAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-# TODO: question options view
+class QuestionDetail(generics.RetrieveAPIView):
+    """Эндпоинт возвращает вопрос и его варианты ответа"""
+
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+    serializer_class = QuestionDetailSerializer
+
+    def get_object(self):
+        try:
+            question = Question.objects.get(id=self.kwargs["id"])
+        except Question.DoesNotExist:
+            raise NotFound("Такого вопроса не существует")
+        return question
