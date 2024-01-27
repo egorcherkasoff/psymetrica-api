@@ -1,10 +1,18 @@
+import uuid
 from django.db import models
-from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 
 from apps.base.models import BaseModel
 
 from ..questions.models import Question
 from ..scales.models import Scale
+
+
+def filename_to_uuid(instance, filename):
+    """генерация уникального имени файла"""
+    ext = filename.split(".")[-1]
+    filename = f"{uuid.uuid4()}.{ext}"
+    return f"options/{filename}"
 
 
 class Option(BaseModel):
@@ -34,6 +42,24 @@ class Option(BaseModel):
 
     def get_scale(self):
         return self.scores.first().scale if self.scores.exists() else None
+
+    def delete(self):
+        """удаление варианта ответа, связанных с ним под-типами и баллами"""
+        # удаляем text подтип
+        if self.text_option.first():
+            self.text_option.first().delete()
+        # удаляем range подтип
+        if self.range_option.first():
+            self.range_option.first().delete()
+        # удаляем image подтип
+        if self.image_option.first():
+            self.image_option.first().delete()
+
+        # удаляем баллы
+        if self.scores.first():
+            self.scores.first().delete()
+        self.deleted_at = timezone.now()
+        self.save(update_fields=["deleted_at"])
 
 
 class TextOption(BaseModel):
@@ -67,7 +93,7 @@ class ImageOption(BaseModel):
     )
 
     image = models.ImageField(
-        upload_to="test_options",
+        upload_to=filename_to_uuid,
         verbose_name="Изображение варианта ответа",
     )
 

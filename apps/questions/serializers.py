@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from apps.tests.serializers import TestDetailSerializer
 
-from ..options.serializers import OptionListSerizlier
+from ..options.serializers import OptionListSerializer
 from .models import Question
 
 
@@ -50,7 +50,7 @@ class QuestionDetailSerializer(QuestionListSerializer):
 
     def get_options(self, obj):
         options = obj.get_options()
-        serializer = OptionListSerizlier(options, many=True)
+        serializer = OptionListSerializer(options, many=True)
         return serializer.data
 
     def get_created_at(self, obj) -> str:

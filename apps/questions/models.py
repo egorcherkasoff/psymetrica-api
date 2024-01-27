@@ -67,9 +67,9 @@ class Question(BaseModel):
         verbose_name="Номер вопроса",
         default=1,
     )
-    # TODO: убрать default, поставть null true
     image = models.ImageField(
-        default="avatars/default.svg",
+        null=True,
+        blank=True,
         upload_to=filename_to_uuid,
         verbose_name="Изображение",
     )
