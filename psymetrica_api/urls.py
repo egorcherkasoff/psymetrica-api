@@ -28,8 +28,8 @@ urlpatterns = [
     path("api/users/", include("apps.users.urls")),
     path("api/questions/", include("apps.questions.urls")),
     path("api/options/", include("apps.options.urls")),
+    path("api/attempts/", include("apps.attempts.urls")),
     # path("api/v1/scales/", include("apps.scales.urls")),
-    # path("api/v1/attempts/", include("apps.attempts.urls")),
 ]
 
 admin.site.site_title = "Панель администратора"

@@ -6,6 +6,8 @@ from apps.options.models import Option, OptionScore
 from apps.scales.models import Scale
 from apps.tests.models import Test
 
+from .permissions import IsAttemptStarter
+
 from .exceptions import (
     CantAddAnswersForOthersAttempts,
     CantAttemptDeletedTest,
@@ -14,127 +16,61 @@ from .exceptions import (
     CantViewAttemptForOthersTests,
 )
 from .models import Attempt, AttemptAnswer
-from .serializers import AttemptAnswerSerializer, AttemptSerializer
+from .serializers import (
+    AttemptListSerializer,
+    AttemptDetailSerializer,
+    AnswerCreateSerializer,
+    AnswerSerializer,
+    AttemptCreateSerializer,
+)
 
 
-class StartAttemptAPIView(generics.CreateAPIView):
-    serializer_class = AttemptSerializer
+class StartAttempt(generics.CreateAPIView):
+    """эндпоинт для старта попытки"""
+
+    serializer_class = AttemptCreateSerializer
     permission_classes = [
         permissions.IsAuthenticated,
     ]
 
-    def post(self, request, test_id, *args, **kwargs):
+    def get_object(self, id):
         try:
-            test = Test.objects.get(id=test_id, deleted_at__isnull=True)
+            test = Test.objects.get(id=id, is_published=True, deleted_at__isnull=True)
         except Test.DoesNotExist:
-            raise NotFound
+            raise NotFound("Такого теста не существует, или он не является публичным")
+        return test
 
-        serializer = self.serializer_class(
-            data=request.data, context={"request": request}
-        )
+    def create(self, request, *args, **kwargs):
+        id = request.data.get("attempt_test")
+        test = self.get_object(id)
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(test=test, user=request.user)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class AttemptRetrieveAPIView(generics.RetrieveAPIView):
-    serializer_class = AttemptSerializer
+class AddAttemptAnswer(generics.CreateAPIView):
+    """эндпоинт добавления ответа попытке"""
+
+    serializer_class = AnswerCreateSerializer
     permission_classes = [
         permissions.IsAuthenticated,
+        IsAttemptStarter,
     ]
 
-    def get_object(self):
+    def get_object(self, id):
         try:
-            attempt = Attempt.objects.get(id=self.kwargs["id"])
+            attempt = Attempt.objects.get(
+                id=id, user=self.request.user, finished__isnull=True
+            )
         except Attempt.DoesNotExist:
-            raise NotFound
-        if (
-            attempt.user != self.request.user
-            or attempt.test.author != self.request.user
-        ):
-            raise CantViewAttemptForOthersTests
+            raise NotFound("Такой попытки не существует")
+        self.check_object_permissions(self.request, attempt)
         return attempt
 
-
-class CreateAttemptAnswerCreateAPIView(generics.CreateAPIView):
-    serializer_class = AttemptAnswerSerializer
-    permission_classes = [
-        permissions.IsAuthenticated,
-    ]
-
-    # TODO: добавить логику запрета ответа на один и тот же вопрос, запрет на ответ если попытка завершена
-    def post(self, request, attempt_id, *args, **kwargs):
-        try:
-            attempt = Attempt.objects.get(id=attempt_id)
-        except Attempt.DoesNotExist:
-            raise NotFound("Такой попытки не существует.")
-
-        if attempt.user != self.request.user:
-            raise CantAddAnswersForOthersAttempts
-
-        if attempt.is_finished:
-            raise CantChangeFinishedAttempt
-
-        serializer = self.serializer_class(
-            data=request.data, context={"request": request}
-        )
-
+    def create(self, request, id, *args, **kwargs):
+        attempt = self.get_object(id)
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            option_id = serializer.validated_data["option"]["id"]
-            option = Option.objects.get(id=option_id)
-            try:
-                score_obj = option.scores.get(deleted_at__isnull=True)
-                score = score_obj.score
-                scale = score_obj.scale
-            except OptionScore.DoesNotExist:
-                score = 1
-                scale = None
-
-            serializer.save(
-                attempt=attempt,
-                option=option,
-                score=score,
-                scale=scale,
-            )
-
+            serializer.save(attempt=attempt)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-class AllTestAttemptsListAPIView(generics.ListAPIView):
-    serializer_class = AttemptSerializer
-    permission_classes = [
-        permissions.IsAuthenticated,
-    ]
-
-    def get_queryset(self):
-        try:
-            test = Test.objects.get(id=self.kwargs["test_id"])
-        except Test.DoesNotExist:
-            raise NotFound("Такого теста не существует")
-        if test.author != self.request.user:
-            raise CantViewAttemptForOthersTests
-        return Attempt.objects.filter(test=test)
-
-
-class UserTestAttemptsListAPIView(generics.ListAPIView):
-    serializer_class = AttemptSerializer
-    permission_classes = [
-        permissions.IsAuthenticated,
-    ]
-
-    def get_queryset(self):
-        try:
-            test = Test.objects.get(id=self.kwargs["test_id"])
-        except Test.DoesNotExist:
-            raise NotFound("Такого теста не существует")
-        return Attempt.objects.filter(test=test, user=self.request.user)
-
-
-# class GetAttemptResults(generics.RetrieveAPIView):
-#     serializer_class = AttemptSerializer
-#     permission_classes = [
-#         permissions.IsAuthenticated,
-#     ]
-
-#     def get_object(self):
-#         raise NotImplementedError

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin, StackedInline
 
-from .models import Option, OptionScore, ImageOption, RangeOption, TextOption
+from .models import ImageOption, Option, OptionScore, RangeOption, TextOption
 
 
 class TextOptionInline(StackedInline):

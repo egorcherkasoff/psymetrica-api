@@ -3,7 +3,7 @@ from rest_framework import serializers
 from apps.questions.models import Question
 from apps.scales.serializers import ScaleSerializer
 
-from .models import Option, OptionScore, ImageOption, RangeOption, TextOption
+from .models import ImageOption, Option, OptionScore, RangeOption, TextOption
 
 
 class ImageOptionSeriaizer(serializers.ModelSerializer):

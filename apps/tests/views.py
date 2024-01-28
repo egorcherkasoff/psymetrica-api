@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import generics, permissions, status
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
+from apps.attempts.serializers import AttemptListSerializer
 
 from apps.questions.pagination import QuestionPagingation
 from apps.questions.serializers import QuestionListSerializer
@@ -213,3 +214,22 @@ class TestQuestionsList(generics.ListAPIView):
         except Test.DoesNotExist:
             raise NotFound("Такого теста не существует")
         return test.get_questions()
+
+
+class TestAttempts(generics.ListAPIView):
+    """Эндпоинт для получения списка попыток теста"""
+
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrNot]
+    serializer_class = AttemptListSerializer
+
+    def get_object(self, slug):
+        try:
+            test = Test.objects.get(slug=slug, deleted_at__isnull=True)
+        except Test.DoesNotExist:
+            raise NotFound("Такого теста не существует")
+        self.check_object_permissions(self.request, test)
+        return test
+
+    def get_queryset(self):
+        test = self.get_object(self.kwargs.get("slug"))
+        return test.get_attempts()

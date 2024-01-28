@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Sum
-
+from django.core.exceptions import ValidationError
 from apps.base.models import BaseModel
 
 from ..options.models import Option
@@ -78,6 +78,9 @@ class Attempt(BaseModel):
             answer__deleted_at__isnull=True,
         )
 
+    def get_answers(self):
+        return self.answers.filter(deleted_at__isnull=True)
+
     def get_start_date(self):
         return self.created_at.strftime("%d.%m.%Y в %H:%M")
 
@@ -126,3 +129,10 @@ class AttemptAnswer(BaseModel):
 
     def __str__(self):
         return f"Ответ попытки {self.attempt.id} на {self.option.question}"
+
+    def clean(self):
+        if self.option.question.test == self.attempt.test:
+            return super().clean()
+        raise ValidationError(
+            "Этот вариант ответа не существует или отсносится к другому тесту"
+        )
