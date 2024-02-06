@@ -41,6 +41,14 @@ class Question(BaseModel):
             "image",
             "Вопрос с выбором из картинок",
         )
+        MATRIX_SINGLE = (
+            "matrix_single",
+            "Вопрос с выбором одного ответа по строке",
+        )
+        MATRIX_MULTI = (
+            "matrix_mutli",
+            "Вопрос с выбором нескольких ответов по строке",
+        )
         # по сути как такогого вопроса нет, используется для вывода какой-либо информации
         INTRO = (
             "intro",
@@ -95,6 +103,10 @@ class Question(BaseModel):
         """возвращает урл картинки вопроса"""
         return self.image.url if self.image else None
 
+    def get_matrix_questions(self):
+        """возвращает список вопросов, где вопрос типа matrix_*"""
+        return self.matrix.filter(deleted_at__isnull=True)
+
     # TODO: сделать! валидацию, её юзать потом в сериализаторае
     # def clean(self):
     #     """доп валидация для номера вопроса"""
@@ -112,30 +124,18 @@ class Question(BaseModel):
                 option.delete()
 
 
-# TODO: как нибудь обеспечить уникальность группы, чтоб небыло одного и того же вопроса в неск. группах
-class QuestionGroup(BaseModel):
-    """модель групп вопросов"""
+class QuestionsMatrix(BaseModel):
+    """модель элемента списка вопроса типа matrix_single, matrix_multi"""
 
-    title = models.CharField(max_length=255, verbose_name="Название")
+    text = models.CharField(max_length=255, verbose_name="Текст вопроса")
 
-    test = models.ForeignKey(
-        to=Test, on_delete=models.CASCADE, verbose_name="Тест", related_name="groups"
-    )
-
-    questions = models.ManyToManyField(
+    question = models.ForeignKey(
         to=Question,
-        related_name="groups",
-        verbose_name="Вопросы",
+        related_name="matrix",
+        verbose_name="Вопрос",
     )
 
     class Meta:
-        verbose_name = "группа вопросов"
-        verbose_name_plural = "группы вопросов"
+        verbose_name = "список вопросов"
+        verbose_name_plural = "списки вопросов"
         ordering = ["-created_at"]
-
-    def get_questions(self):
-        """возвращает все вопросы группы"""
-        self.questions.filter(deleted_at__isnull=True)
-
-    def __str__(self):
-        return f'Группа "{self.title}" для теста "{self.test.title}"'

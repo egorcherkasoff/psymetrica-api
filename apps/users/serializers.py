@@ -11,16 +11,10 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "email", "full_name", "avatar"]
+        fields = ["id", "full_name", "avatar"]
 
     def get_full_name(self, obj):
         return obj.get_full_name
-
-    def to_representation(self, instance):
-        representation = super(UserSerializer, self).to_representation(instance)
-        if instance.is_superuser:
-            representation["admin"] = True
-        return representation
 
 
 class CreateUserSerializer(UserCreateSerializer):

@@ -63,6 +63,26 @@ class Option(BaseModel):
         self.save(update_fields=["deleted_at"])
 
 
+class SingleMatrixOption(BaseModel):
+    """модель варианта ответа на вопрос типа matrix_single"""
+
+    option = models.ForeignKey(
+        to=Option,
+        on_delete=models.CASCADE,
+        related_name="single_matrix_option",
+        verbose_name="Вариант ответа",
+    )
+
+    text = models.CharField(max_length=255, verbose_name="Текст варианта ответа")
+
+    class Meta:
+        verbose_name = "вариант ответа на вопрос типа matrix_single"
+        verbose_name_plural = "варианты ответа на вопрос типа matrix_single"
+
+    def __str__(self):
+        return self.text
+
+
 class TextOption(BaseModel):
     """модель варианта ответа на вопрос типа text"""
 
@@ -140,7 +160,7 @@ class OptionScore(BaseModel):
         to=Scale, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Шкала"
     )  # может быть пустым, при отсутствии шкал
 
-    score = models.SmallIntegerField(verbose_name="Баллы", default=1)
+    score = models.SmallIntegerField(verbose_name="Баллы", default=0)
 
     class Meta:
         verbose_name = "балл варианта ответа"

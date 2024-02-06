@@ -25,7 +25,7 @@ SECRET_KEY = str(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(environ.get("DEBUG", True))
 
-ALLOWED_HOSTS = ["0.0.0.0", "127.0.0.1", "localhost"]
+ALLOWED_HOSTS = ["0.0.0.0", "127.0.0.1", "localhost", "192.168.0.101"]
 
 
 # Application definition
@@ -226,7 +226,7 @@ SIMPLE_JWT = {
 DJOSER = {
     "USER_ID_FIELD": "id",
     "LOGIN_FIELD": "email",
-    "USER_CREATE_PASSWORD_RETYPE": True,
+    "SEND_CONFIRMATION_EMAIL": True,
     "PASSWORD_RESET_CONFIRM_URL": "password/reset/confirm/{uid}/{token}",
     "SET_PASSWORD_RETYPE": True,
     "PASSWORD_RESET_CONFIRM_RETYPE": True,

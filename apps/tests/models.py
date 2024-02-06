@@ -60,8 +60,10 @@ class Test(BaseModel):
         populate_from="title",
         unique=True,
     )
-    # TODO: хотелось бы добавить популярность (кол-во прохождений(общее и за месяц))
-    # еще добавил бы что то типа "показывать результаты пользователю"
+
+    show_results_to_user = models.BooleanField(
+        default=True, verbose_name="Показывать результаты пользователю"
+    )
 
     # в проде поставить на false, поскольку тесты должны пройти модерацию, чтобы стать публичными
     is_published = models.BooleanField(default=True)
@@ -78,6 +80,18 @@ class Test(BaseModel):
     def actual_question_count(self):
         """возвращает кол-во вопросов, не являющихся вопросами intro"""
         return self.questions.exclude(type="intro", deleted_at__isnull=True).count()
+
+    @property
+    def total_passes(self):
+        """возвращает общее кол-во прохождений(завершенных) теста"""
+        return self.passes.all().count()
+
+    @property
+    def monthly_passes(self):
+        """возвращает кол-во прохождений(завершенных) теста за последний месяц"""
+        return self.passes.filter(
+            created_at__gte=timezone.now() - timezone.timedelta(days=30)
+        ).count()
 
     def __str__(self):
         return f'Тест "{self.title}" от пользователя "{self.author}"'
@@ -111,6 +125,30 @@ class Test(BaseModel):
         if questions:
             for question in questions:
                 question.delete()
+
+
+class TestPasses(BaseModel):
+    """модель прохождения(полного) теста"""
+
+    test = models.ForeignKey(
+        to=Test,
+        on_delete=models.CASCADE,
+        verbose_name="Тест",
+        related_name="passes",
+        related_query_name="test",
+    )
+    user = models.ForeignKey(
+        to=User,
+        on_delete=models.CASCADE,
+        verbose_name="Пользователь",
+        related_name="passes",
+        related_query_name="user",
+    )
+
+    class Meta:
+        verbose_name = "прохождение теста"
+        verbose_name_plural = "прохождения теста"
+        ordering = ["-created_at"]
 
 
 class AssignedTest(BaseModel):
