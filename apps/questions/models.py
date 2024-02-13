@@ -133,6 +133,7 @@ class QuestionsMatrix(BaseModel):
         to=Question,
         related_name="matrix",
         verbose_name="Вопрос",
+        on_delete=models.CASCADE,
     )
 
     class Meta:

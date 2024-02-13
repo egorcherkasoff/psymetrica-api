@@ -4,6 +4,8 @@ from django.db import models
 from django.utils import timezone
 
 from apps.base.models import BaseModel
+from apps.notifications.models import Notification
+from django.contrib.contenttypes.fields import GenericRelation
 
 User = get_user_model()
 
@@ -173,6 +175,8 @@ class AssignedTest(BaseModel):
         verbose_name="Тест",
         related_name="assignments",
     )
+
+    notifications = GenericRelation(Notification)
 
     def __str__(self):
         return f"{self.test} назначен пользователю {self.assigned_to} в {self.get_created_at()}"

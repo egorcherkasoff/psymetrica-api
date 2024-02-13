@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 
-from .models import Question, QuestionGroup
+from .models import Question
 
 
 @admin.register(Question)
