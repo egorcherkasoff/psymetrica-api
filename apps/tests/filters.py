@@ -4,8 +4,8 @@ from django_filters import rest_framework as filters
 from .models import Test
 
 
-class AuthorFilter(filters.Filter):
-    """Кастомный под-фильтр для поиска по трем полям автора теста"""
+class GeneralFilter(filters.Filter):
+    """Кастомный под-фильтр для поиска по нескольким полям теста"""
 
     def filter(self, qs, value):
         if value:
@@ -13,6 +13,8 @@ class AuthorFilter(filters.Filter):
                 Q(author__first_name__icontains=value)
                 | Q(author__last_name__icontains=value)
                 | Q(author__middle_name__icontains=value)
+                | Q(title__icontains=value)
+                | Q(description__icontains=value)
             )
         return qs
 
@@ -20,11 +22,9 @@ class AuthorFilter(filters.Filter):
 class TestFilter(filters.FilterSet):
     """Фильтр для тестов"""
 
-    title = filters.CharFilter(lookup_expr="icontains")
-    description = filters.CharFilter(lookup_expr="icontains")
-    author = AuthorFilter()
+    general = GeneralFilter()
     category = filters.CharFilter(lookup_expr="iexact")
 
     class Meta:
         model = Test
-        fields = ["title", "description", "author", "category"]
+        fields = ["general", "category"]

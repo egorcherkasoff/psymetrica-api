@@ -1,16 +1,16 @@
 from autoslug import AutoSlugField
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.utils import timezone
 
-from apps.base.models import BaseModel
+from apps.base.models import BaseModel, SlimModel
 from apps.notifications.models import Notification
-from django.contrib.contenttypes.fields import GenericRelation
 
 User = get_user_model()
 
 
-class Category(BaseModel):
+class Category(SlimModel):
     """Модель категории"""
 
     title = models.CharField(
@@ -67,6 +67,14 @@ class Test(BaseModel):
         default=True, verbose_name="Показывать результаты пользователю"
     )
 
+    allow_repeated_attempts = models.BooleanField(
+        default=False, verbose_name="Разрешено повторное прохождение"
+    )
+
+    user_can_go_back = models.BooleanField(
+        default=False, verbose_name="Разрешено возвращатся к предыдущему вопросу(ам)"
+    )
+
     # в проде поставить на false, поскольку тесты должны пройти модерацию, чтобы стать публичными
     is_published = models.BooleanField(default=True)
 
@@ -76,6 +84,7 @@ class Test(BaseModel):
         ordering = ["-created_at"]
         permissions = [
             ("can_assign_tests", "Может назначать тесты"),
+            ("can_crud_tests", "Может добавлять, редактировать, удалять тесты"),
         ]
 
     @property
@@ -129,7 +138,7 @@ class Test(BaseModel):
                 question.delete()
 
 
-class TestPasses(BaseModel):
+class TestPasses(SlimModel):
     """модель прохождения(полного) теста"""
 
     test = models.ForeignKey(
@@ -145,6 +154,9 @@ class TestPasses(BaseModel):
         verbose_name="Пользователь",
         related_name="passes",
         related_query_name="user",
+    )
+    ip = models.GenericIPAddressField(
+        verbose_name="IP-адрес",
     )
 
     class Meta:
@@ -188,3 +200,59 @@ class AssignedTest(BaseModel):
         verbose_name = "Назначение теста"
         verbose_name_plural = "Назначения теста"
         ordering = ["assigned_to", "test", "-created_at"]
+
+
+class TestStartPage(BaseModel):
+    """Модель стартовой страницы теста"""
+
+    test = models.ForeignKey(
+        to=Test,
+        on_delete=models.CASCADE,
+        related_name="start_page",
+        verbose_name="Тест",
+    )
+
+    title = models.CharField(
+        db_index=True,
+        max_length=255,
+        verbose_name="Заголовок",
+    )
+
+    description = models.TextField(
+        verbose_name="Описание",
+        max_length=1024,
+    )
+
+    class Meta:
+        verbose_name = "Стартовая страница"
+        verbose_name_plural = "Стартовые страницы"
+        unique_together = ["test"]
+        ordering = ["test", "-created_at"]
+
+
+class TestFinishPage(BaseModel):
+    """Модель финальной страницы теста"""
+
+    test = models.ForeignKey(
+        to=Test,
+        on_delete=models.CASCADE,
+        related_name="end_page",
+        verbose_name="Тест",
+    )
+
+    title = models.CharField(
+        db_index=True,
+        max_length=255,
+        verbose_name="Заголовок",
+    )
+
+    description = models.TextField(
+        verbose_name="Описание",
+        max_length=1024,
+    )
+
+    class Meta:
+        verbose_name = "Финальная страница"
+        verbose_name_plural = "Финальные страницы"
+        unique_together = ["test"]
+        ordering = ["test", "-created_at"]

@@ -4,13 +4,19 @@ from django.db import models
 from django.utils import timezone
 
 
-class BaseModel(models.Model):
-    """абстрактная модель с необходимыми тайстампами и id"""
+class SlimModel(models.Model):
+    """абстрактная модель с минимальным кол-вом полей, нужна там, где таймстампы и мягкое удаление будут излишни"""
 
     pkid = models.BigAutoField(primary_key=True, editable=False)
     id = models.UUIDField(default=uuid.uuid4, editable=False)
 
-    # timestamps
+    class Meta:
+        abstract = True
+
+
+class BaseModel(SlimModel):
+    """абстрактная модель с более подробными полями. используется там, где нужны таймстампы"""
+
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата изменения")
     deleted_at = models.DateTimeField(
@@ -20,6 +26,12 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+    def get_created_at(self):
+        return self.created_at.strftime("%d.%m.%Y в %H:%M")
+
+    def get_updated_at(self):
+        return self.updated_at.strftime("%d.%m.%Y в %H:%M")
+
     def delete(self):
         """совершает 'мягкое' удаление объекта, устанавливая дату удаления"""
         self.deleted_at = timezone.now()
@@ -28,9 +40,3 @@ class BaseModel(models.Model):
     def hard_delete(self):
         """совершает полное удаление объекта"""
         super().delete()
-
-    def get_created_at(self):
-        return self.created_at.strftime("%d.%m.%Y в %H:%M")
-
-    def get_updated_at(self):
-        return self.updated_at.strftime("%d.%m.%Y в %H:%M")

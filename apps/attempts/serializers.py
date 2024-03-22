@@ -1,13 +1,13 @@
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
-from apps.options.models import Option
-
 from rest_framework.exceptions import NotFound
+
+from apps.options.models import Option
 from apps.options.serializers import OptionListSerializer
 from apps.scales.serializers import ScaleSerializer
 from apps.tests.serializers import TestListSerializer
 from apps.users.serializers import UserSerializer
 
-from django.core.exceptions import ValidationError
 from .models import Attempt, AttemptAnswer
 
 

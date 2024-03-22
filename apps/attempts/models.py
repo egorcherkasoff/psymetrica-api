@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
-from django.core.exceptions import ValidationError
+
 from apps.base.models import BaseModel
 
 from ..options.models import Option
@@ -11,7 +12,6 @@ from ..tests.models import Test
 User = get_user_model()
 
 
-# Create your models here.
 class Attempt(BaseModel):
     """Модель попытки теста"""
 
@@ -52,6 +52,7 @@ class Attempt(BaseModel):
         )
         return f'Попытка теста "{self.test}" пользователя {self.user} от {self.get_start_date()}. {finished}'
 
+    # TODO: переделать. под чем я был когда это писал
     def get_results(self):
         """возвращает результаты попытки"""
         if self.is_finished:

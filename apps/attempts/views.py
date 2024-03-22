@@ -6,8 +6,6 @@ from apps.options.models import Option, OptionScore
 from apps.scales.models import Scale
 from apps.tests.models import Test
 
-from .permissions import IsAttemptStarter
-
 from .exceptions import (
     CantAddAnswersForOthersAttempts,
     CantAttemptDeletedTest,
@@ -16,12 +14,13 @@ from .exceptions import (
     CantViewAttemptForOthersTests,
 )
 from .models import Attempt, AttemptAnswer
+from .permissions import IsAttemptStarter
 from .serializers import (
-    AttemptListSerializer,
-    AttemptDetailSerializer,
     AnswerCreateSerializer,
     AnswerSerializer,
     AttemptCreateSerializer,
+    AttemptDetailSerializer,
+    AttemptListSerializer,
 )
 
 

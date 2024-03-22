@@ -1,9 +1,9 @@
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 from apps.base.models import BaseModel
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 
 User = get_user_model()
 
@@ -25,15 +25,15 @@ class Notification(BaseModel):
         related_query_name="notification",
     )
 
-    text = models.TextField(
-        max_length=255,
-        verbose_name="Текст уведомления",
-    )
-
     subject = models.CharField(
         choices=NotificationTypes.choices,
         max_length=15,
         verbose_name="Тема уведомления",
+    )
+
+    text = models.TextField(
+        max_length=255,
+        verbose_name="Текст уведомления",
     )
 
     # с помощью contenttypes делаем ссылку на объект разных моделей

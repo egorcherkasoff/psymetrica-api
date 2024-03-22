@@ -21,21 +21,31 @@ class User(AbstractBaseUser, BaseModel, PermissionsMixin):
     """модель пользователя"""
 
     email = models.EmailField(
-        max_length=100, verbose_name="email", unique=True, db_index=True, null=False
+        max_length=100,
+        verbose_name="Адрес эл. почты",
+        unique=True,
+        db_index=True,
+        null=False,
     )
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name="Активен",
+    )
+    is_staff = models.BooleanField(
+        default=False,
+        verbose_name="Модератор",
+    )
+    is_superuser = models.BooleanField(
+        default=False,
+        verbose_name="Администратор",
+    )
 
-    # личные данные пользователя
-    first_name = models.CharField(
-        max_length=50, verbose_name="имя", null=True, blank=True
-    )
-    middle_name = models.CharField(
-        max_length=50, verbose_name="отчество", null=True, blank=True
-    )
-    last_name = models.CharField(
-        max_length=50, verbose_name="фамилия", null=True, blank=True
+    name = models.CharField(
+        max_length=100,
+        verbose_name="Имя пользователя",
+        null=True,
+        blank=True,
+        db_index=True,
     )
 
     avatar = models.ImageField(
@@ -57,18 +67,10 @@ class User(AbstractBaseUser, BaseModel, PermissionsMixin):
         ordering = ["-updated_at"]
 
     def __str__(self):
-        try:
-            return f"{self.last_name} {f'{self.first_name[0]}.' if self.first_name else ''} {f'{self.middle_name[0]}.' if self.middle_name else ''}".strip()
-        except AttributeError:
-            return f"{self.email.split('@')[0]}"
-
-    @property
-    def get_full_name(self):
-        """возвращает полное имя пользователя"""
-        return f"{self.first_name} {self.middle_name} {self.last_name}".strip()
+        return self.name
 
     def get_avatar(self):
-        """возвращает урл аватар пользователя"""
+        """возвращает урл аватара пользователя"""
         return self.avatar.url if self.avatar is not None else None
 
     def get_tests(self):

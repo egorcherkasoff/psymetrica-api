@@ -2,8 +2,8 @@ from django.contrib.auth import get_user_model
 from rest_framework import generics, permissions, status
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
-from apps.attempts.serializers import AttemptListSerializer
 
+from apps.attempts.serializers import AttemptListSerializer
 from apps.questions.pagination import QuestionPagingation
 from apps.questions.serializers import QuestionListSerializer
 

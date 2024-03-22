@@ -6,7 +6,6 @@ from apps.base.models import BaseModel
 from ..tests.models import Test
 
 
-# Create your models here.
 class Scale(BaseModel):
     """Модель шкалы"""
 
@@ -17,8 +16,11 @@ class Scale(BaseModel):
         on_delete=models.CASCADE,
         related_name="scales",
         related_query_name="scale",
+        verbose_name="Тест",
     )
-    color = ColorField(default="#ff0000", format="hex", verbose_name="Цвет")
+    color = ColorField(
+        default="#ff0000", format="hex", verbose_name="Цвет шкалы в графиках"
+    )
 
     class Meta:
         verbose_name = "шкала"

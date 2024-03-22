@@ -71,10 +71,6 @@ class Question(BaseModel):
 
     text = models.CharField(max_length=255, verbose_name="Текст")
 
-    number = models.PositiveIntegerField(
-        verbose_name="Номер вопроса",
-        default=1,
-    )
     image = models.ImageField(
         null=True,
         blank=True,
@@ -87,8 +83,9 @@ class Question(BaseModel):
         verbose_name_plural = "вопросы"
         ordering = ["number", "-created_at"]
 
+    # TODO: переделать!
     def __str__(self):
-        return f'Вопрос №{self.number} для теста "{self.test.title}"'
+        return f'Вопрос №для теста "{self.test.title}"'
 
     def get_options(self):
         """возвращает все варианты ответов к тесту"""
@@ -102,10 +99,6 @@ class Question(BaseModel):
     def get_image(self):
         """возвращает урл картинки вопроса"""
         return self.image.url if self.image else None
-
-    def get_matrix_questions(self):
-        """возвращает список вопросов, где вопрос типа matrix_*"""
-        return self.matrix.filter(deleted_at__isnull=True)
 
     # TODO: сделать! валидацию, её юзать потом в сериализаторае
     # def clean(self):
@@ -124,19 +117,46 @@ class Question(BaseModel):
                 option.delete()
 
 
-class QuestionsMatrix(BaseModel):
-    """модель элемента списка вопроса типа matrix_single, matrix_multi"""
+class QuestionBlock(BaseModel):
+    """блок вопросов"""
 
-    text = models.CharField(max_length=255, verbose_name="Текст вопроса")
-
-    question = models.ForeignKey(
-        to=Question,
-        related_name="matrix",
-        verbose_name="Вопрос",
+    test = models.ForeignKey(
+        to=Test,
         on_delete=models.CASCADE,
+        related_name="question_blocks",
+        related_query_name="question_block",
+        verbose_name="Тест",
+    )
+
+    questions = models.ManyToManyField(
+        to=Question,
+        related_name="question_blocks",
+        related_query_name="question_block",
+        verbose_name="Вопросы",
+    )
+
+    private_title = models.CharField(
+        max_length=255, verbose_name="Заголовок (Не отображается пользователю)"
+    )
+
+    public_title = models.CharField(
+        max_length=255, verbose_name="Заголовок (Отображается пользователю)"
+    )
+
+    description = models.CharField(
+        max_length=255,
+        verbose_name="Описание",
+    )
+
+    order = models.PositiveSmallIntegerField(
+        verbose_name="Порядок",
+        default=1,
     )
 
     class Meta:
-        verbose_name = "список вопросов"
-        verbose_name_plural = "списки вопросов"
+        verbose_name = "блок вопросов"
+        verbose_name_plural = "блоки вопросов"
         ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Блок вопросов для теста {self.test.title}"
