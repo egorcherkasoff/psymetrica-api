@@ -235,6 +235,9 @@ DJOSER = {
         "user": "apps.users.serializers.UserSerializer",
         "current_user": "apps.users.serializers.UserSerializer",
     },
+    "PERMISSIONS": {
+        "user": ["rest_framework.permissions.AllowAny"],
+    },
 }
 
 CSRF_TRUSTED_ORIGINS = ["http://localhost:8080"]

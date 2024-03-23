@@ -67,7 +67,7 @@ class User(AbstractBaseUser, BaseModel, PermissionsMixin):
         ordering = ["-updated_at"]
 
     def __str__(self):
-        return self.name
+        return self.name if self.name is not None else self.email
 
     def get_avatar(self):
         """возвращает урл аватара пользователя"""

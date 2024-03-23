@@ -36,7 +36,7 @@ class CategoriesList(generics.ListAPIView):
     permission_classes = [
         permissions.AllowAny,
     ]
-    queryset = Category.objects.filter(deleted_at__isnull=True)
+    queryset = Category.objects.all()
 
 
 class PublicTestList(generics.ListAPIView):

@@ -81,7 +81,7 @@ class Question(BaseModel):
     class Meta:
         verbose_name = "вопрос"
         verbose_name_plural = "вопросы"
-        ordering = ["number", "-created_at"]
+        ordering = ["-created_at"]
 
     # TODO: переделать!
     def __str__(self):

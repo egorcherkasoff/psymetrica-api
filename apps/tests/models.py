@@ -25,7 +25,7 @@ class Category(SlimModel):
     class Meta:
         verbose_name = "категория"
         verbose_name_plural = "категории"
-        ordering = ["-created_at"]
+        ordering = ["title"]
 
     def __str__(self):
         return self.title
@@ -157,12 +157,13 @@ class TestPasses(SlimModel):
     )
     ip = models.GenericIPAddressField(
         verbose_name="IP-адрес",
+        default="0.0.0.0",
     )
 
     class Meta:
         verbose_name = "прохождение теста"
         verbose_name_plural = "прохождения теста"
-        ordering = ["-created_at"]
+        ordering = ["test", "user"]
 
 
 class AssignedTest(BaseModel):

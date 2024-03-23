@@ -11,7 +11,7 @@ class QuestionAdmin(ModelAdmin):
     fieldsets = (
         (
             "Основная информация",
-            {"fields": ("test", "number", "type", "text", "image", "is_required")},
+            {"fields": ("test", "type", "text", "image", "is_required")},
         ),
         (
             "Даты",
@@ -23,7 +23,7 @@ class QuestionAdmin(ModelAdmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("test", "number", "type", "text", "image", "is_required"),
+                "fields": ("test", "type", "text", "image", "is_required"),
             },
         ),
     )
@@ -33,7 +33,7 @@ class QuestionAdmin(ModelAdmin):
         "type",
     ]
     list_filter = ["is_required", "type"]
-    list_display = ["id", "test", "number", "type"]
+    list_display = ["id", "test", "type"]
     list_display_links = ["id", "test"]
     readonly_fields = ["created_at", "updated_at"]
     empty_value_display = "-информация отсутствует-"

@@ -25,7 +25,7 @@ class AdminUser(UserAdmin):
         ),
         (
             "Личная информация",
-            {"fields": ("first_name", "middle_name", "last_name", "avatar")},
+            {"fields": ("name", "avatar")},
         ),
         ("Даты", {"fields": ("created_at", "updated_at", "deleted_at")}),
         (
@@ -44,25 +44,21 @@ class AdminUser(UserAdmin):
                     "password1",
                     "password2",
                     "is_staff",
-                    "first_name",
-                    "last_name",
-                    "middle_name",
+                    "name",
                 ),
             },
         ),
     )
-    search_fields = ["email", "first_name", "middle_name", "last_name"]
+    search_fields = ["email", "name"]
     list_filter = ("is_staff", "is_superuser", "is_active", "groups")
     list_display = [
         "id",
         "email",
-        "first_name",
-        "middle_name",
-        "last_name",
+        "name",
         "is_active",
         "is_staff",
     ]
-    list_display_links = ["id", "email", "first_name", "middle_name", "last_name"]
+    list_display_links = ["id", "email", "name"]
     empty_value_display = "-информация отсутствует-"
 
     readonly_fields = ["created_at", "updated_at"]

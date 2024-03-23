@@ -91,11 +91,9 @@ class AdminCategory(ModelAdmin):
     fieldsets = (
         (
             "Основная информация",
-            {"fields": ("title",)},
-        ),
-        (
-            "Даты",
-            {"fields": ("created_at", "updated_at", "deleted_at")},
+            {
+                "fields": ("title",),
+            },
         ),
     )
     add_fieldsets = (
@@ -114,5 +112,4 @@ class AdminCategory(ModelAdmin):
     # id только для разработки.. потом убрать
     list_display = ["id", "title"]
     list_display_links = ["id", "title"]
-    readonly_fields = ["created_at", "updated_at"]
     empty_value_display = "-информация отсутствует-"

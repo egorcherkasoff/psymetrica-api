@@ -6,15 +6,12 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
-    full_name = serializers.SerializerMethodField()
     avatar = serializers.CharField(read_only=True, source="get_avatar")
+    name = serializers.CharField(read_only=True, source="__str__")
 
     class Meta:
         model = User
-        fields = ["id", "full_name", "avatar"]
-
-    def get_full_name(self, obj):
-        return obj.get_full_name
+        fields = ["id", "name", "avatar"]
 
 
 class CreateUserSerializer(UserCreateSerializer):
