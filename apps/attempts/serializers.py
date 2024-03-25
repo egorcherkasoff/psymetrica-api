@@ -37,7 +37,6 @@ class AttemptListSerializer(serializers.ModelSerializer):
         model = Attempt
         fields = [
             "id",
-            "test",
             "user",
             "started_at",
             "is_finished",

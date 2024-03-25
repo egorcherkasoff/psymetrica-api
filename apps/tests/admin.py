@@ -37,7 +37,12 @@ class AdminTest(ModelAdmin):
     ]
     list_filter = ["author", "is_published"]
     # id только для разработки.. потом убрать
-    list_display = ["id", "title", "category", "author", "slug"]
+    list_display = [
+        "id",
+        "title",
+        "category",
+        "author",
+    ]
     list_display_links = ["id", "title"]
     readonly_fields = ["created_at", "updated_at"]
     empty_value_display = "-информация отсутствует-"

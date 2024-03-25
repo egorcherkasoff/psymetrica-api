@@ -1,4 +1,3 @@
-from autoslug import AutoSlugField
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
@@ -15,11 +14,6 @@ class Category(SlimModel):
 
     title = models.CharField(
         db_index=True, max_length=255, verbose_name="Название", unique=True
-    )
-    slug = AutoSlugField(
-        always_update=True,
-        populate_from="title",
-        unique=True,
     )
 
     class Meta:
@@ -55,12 +49,6 @@ class Test(BaseModel):
         verbose_name="категория",
         null=True,
         blank=True,
-    )
-
-    slug = AutoSlugField(
-        always_update=True,
-        populate_from="title",
-        unique=True,
     )
 
     show_results_to_user = models.BooleanField(
@@ -116,9 +104,10 @@ class Test(BaseModel):
         return self.scales.filter(deleted_at__isnull=True)
 
     def get_attempts(self):
-        """возвращает все попытки теста"""
+        """возвращает все завершенные попытки теста"""
         return self.attempts.filter(
             deleted_at__isnull=True,
+            is_finished=True,
         )
 
     def get_user_attempts(self, user):
@@ -136,34 +125,6 @@ class Test(BaseModel):
         if questions:
             for question in questions:
                 question.delete()
-
-
-class TestPasses(SlimModel):
-    """модель прохождения(полного) теста"""
-
-    test = models.ForeignKey(
-        to=Test,
-        on_delete=models.CASCADE,
-        verbose_name="Тест",
-        related_name="passes",
-        related_query_name="test",
-    )
-    user = models.ForeignKey(
-        to=User,
-        on_delete=models.CASCADE,
-        verbose_name="Пользователь",
-        related_name="passes",
-        related_query_name="user",
-    )
-    ip = models.GenericIPAddressField(
-        verbose_name="IP-адрес",
-        default="0.0.0.0",
-    )
-
-    class Meta:
-        verbose_name = "прохождение теста"
-        verbose_name_plural = "прохождения теста"
-        ordering = ["test", "user"]
 
 
 class AssignedTest(BaseModel):

@@ -9,7 +9,7 @@ from apps.questions.serializers import QuestionListSerializer
 
 from .exceptions import CantAssignTestsForYourself
 from .filters import TestFilter
-from .models import Category, Test
+from .models import Category, Test, TestStartPage, TestFinishPage
 from .pagination import TestPagination
 from .permissions import (
     CanAssignTestsOrNot,
@@ -29,6 +29,7 @@ from .serializers import (
 User = get_user_model()
 
 
+# list views
 class CategoriesList(generics.ListAPIView):
     """Эндпоинт возвращает список категорий"""
 
@@ -52,23 +53,7 @@ class PublicTestList(generics.ListAPIView):
     ordering_fields = ("created_at",)
 
 
-class PublicTestDetail(generics.RetrieveAPIView):
-    """Эндпоинт возвращает один публичный тест по его slug"""
-
-    serializer_class = TestDetailSerializer
-    permission_classes = [
-        permissions.AllowAny,
-    ]
-
-    def retrieve(self, request, slug, *args, **kwargs):
-        try:
-            test = Test.objects.get(
-                slug=slug, deleted_at__isnull=True, is_published=True
-            )
-        except Test.DoesNotExist:
-            raise NotFound("Такого теста не существует.")
-        serializer = self.serializer_class(test, context={"request": request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
+# crud views
 
 
 class TestCreate(generics.CreateAPIView):
@@ -92,7 +77,24 @@ class TestCreate(generics.CreateAPIView):
                 except Category.DoesNotExist:
                     raise NotFound("Такой категории не существует")
             serializer.save(author=request.user, category=category)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_201_CREATED)
+
+
+class PublicTestDetail(generics.RetrieveAPIView):
+    """Эндпоинт возвращает один публичный тест по его id"""
+
+    serializer_class = TestDetailSerializer
+    permission_classes = [
+        permissions.AllowAny,
+    ]
+
+    def retrieve(self, request, id, *args, **kwargs):
+        try:
+            test = Test.objects.get(id=id, deleted_at__isnull=True, is_published=True)
+        except Test.DoesNotExist:
+            raise NotFound("Такого теста не существует.")
+        serializer = self.serializer_class(test, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class TestUpdate(generics.UpdateAPIView):
@@ -105,16 +107,16 @@ class TestUpdate(generics.UpdateAPIView):
 
     serializer_class = TestUpdateSerializer
 
-    def get_object(self, slug):
+    def get_object(self, id):
         try:
-            test = Test.objects.get(slug=slug, deleted_at__isnull=True)
+            test = Test.objects.get(id=id, deleted_at__isnull=True)
         except Test.DoesNotExist:
             raise NotFound("Такого теста не существует")
         self.check_object_permissions(self.request, test)
         return test
 
-    def patch(self, request, slug, *args, **kwargs):
-        test = self.get_object(slug)
+    def patch(self, request, id, *args, **kwargs):
+        test = self.get_object(id)
         serializer = self.serializer_class(
             instance=test, data=request.data, partial=True
         )
@@ -131,16 +133,16 @@ class TestDelete(generics.DestroyAPIView):
         CanUpdateDeleteTestsOrNot,
     ]
 
-    def get_object(self, slug):
+    def get_object(self, id):
         try:
-            test = Test.objects.get(slug=slug, deleted_at__isnull=True)
+            test = Test.objects.get(id=id, deleted_at__isnull=True)
         except Test.DoesNotExist:
             raise NotFound("Такого теста не существует")
         self.check_object_permissions(self.request, test)
         return test
 
-    def destroy(self, request, slug):
-        test = self.get_object(slug)
+    def destroy(self, request, id):
+        test = self.get_object(id)
         test.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -154,15 +156,15 @@ class AssignTest(generics.CreateAPIView):
     ]
     serializer_class = TestAssignSerializer
 
-    def get_object(self, slug):
+    def get_object(self, id):
         try:
-            test = Test.objects.get(slug=slug, deleted_at__isnull=True)
+            test = Test.objects.get(id=id, deleted_at__isnull=True, is_published=True)
         except Test.DoesNotExist:
-            raise NotFound("Такого теста не существует")
+            raise NotFound("Такого теста не существует или он не опубликован")
         return test
 
-    def post(self, request, slug):
-        test = self.get_object(slug)
+    def post(self, request, id):
+        test = self.get_object(id)
         serializer = self.serializer_class(
             data=request.data, context={"request": request}
         )
@@ -176,7 +178,7 @@ class AssignTest(generics.CreateAPIView):
                 raise CantAssignTestsForYourself
             serializer.save(assigned_by=request.user, test=test, assigned_to=user)
 
-        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_201_CREATED)
 
 
 class TestAssignsList(generics.ListAPIView):
@@ -190,7 +192,7 @@ class TestAssignsList(generics.ListAPIView):
 
     def get_object(self):
         try:
-            test = Test.objects.get(slug=self.kwargs["slug"], deleted_at__isnull=True)
+            test = Test.objects.get(id=self.kwargs["id"], deleted_at__isnull=True)
         except Test.DoesNotExist:
             raise NotFound("Такого теста не существует")
         return test
@@ -201,35 +203,23 @@ class TestAssignsList(generics.ListAPIView):
         return test.assignments.filter(deleted_at__isnull=True)
 
 
-class TestQuestionsList(generics.ListAPIView):
-    permission_classes = [
-        permissions.IsAuthenticated,
-    ]
-    serializer_class = QuestionListSerializer
-    pagination_class = QuestionPagingation
-
-    def get_queryset(self):
-        try:
-            test = Test.objects.get(slug=self.kwargs["slug"], deleted_at__isnull=True)
-        except Test.DoesNotExist:
-            raise NotFound("Такого теста не существует")
-        return test.get_questions()
-
-
 class TestAttempts(generics.ListAPIView):
     """Эндпоинт для получения списка попыток теста"""
 
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrNot]
     serializer_class = AttemptListSerializer
 
-    def get_object(self, slug):
+    def get_object(self, id):
         try:
-            test = Test.objects.get(slug=slug, deleted_at__isnull=True)
+            test = Test.objects.get(
+                id=id,
+                deleted_at__isnull=True,
+            )
         except Test.DoesNotExist:
-            raise NotFound("Такого теста не существует")
+            raise NotFound("Такого теста не существует или он не опубликован")
         self.check_object_permissions(self.request, test)
         return test
 
     def get_queryset(self):
-        test = self.get_object(self.kwargs.get("slug"))
+        test = self.get_object(self.kwargs.get("id"))
         return test.get_attempts()

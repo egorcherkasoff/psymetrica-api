@@ -26,7 +26,7 @@ urlpatterns = [
         "api/tests/",
         include("apps.tests.urls"),
     ),
-    # path("api/users/", include("apps.users.urls")),
+    path("api/users/", include("apps.users.urls")),
     # path("api/questions/", include("apps.questions.urls")),
     # path("api/options/", include("apps.options.urls")),
     # path("api/attempts/", include("apps.attempts.urls")),

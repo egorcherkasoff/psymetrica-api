@@ -22,9 +22,9 @@ class GeneralFilter(filters.Filter):
 class TestFilter(filters.FilterSet):
     """Фильтр для тестов"""
 
-    general = GeneralFilter()
+    query = GeneralFilter()
     category = filters.CharFilter(lookup_expr="iexact")
 
     class Meta:
         model = Test
-        fields = ["general", "category"]
+        fields = ["query", "category"]

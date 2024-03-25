@@ -13,6 +13,7 @@ class TestListSerializer(serializers.ModelSerializer):
     questions = serializers.SerializerMethodField()
     created_at = serializers.SerializerMethodField()
     category = serializers.SerializerMethodField()
+    passes = serializers.SerializerMethodField()
 
     class Meta:
         model = Test
@@ -22,14 +23,15 @@ class TestListSerializer(serializers.ModelSerializer):
             "author",
             "description",
             "category",
-            "slug",
             "questions",
             "created_at",
+            "passes",
         ]
 
-    def get_author(self, obj) -> str:
-        # поменять чутка юзера шоб вывести нормально
-        return obj.author.email
+    def get_author(self, obj):
+        author = obj.author
+        serializer = UserSerializer(author, many=False)
+        return serializer.data
 
     def get_questions(self, obj) -> int:
         return obj.actual_question_count
@@ -43,53 +45,45 @@ class TestListSerializer(serializers.ModelSerializer):
             return category.title
         return None
 
+    def get_passes(self, obj):
+        return obj.total_passes
+
 
 class TestDetailSerializer(TestListSerializer):
     """сериализатор для теста"""
 
-    scales = serializers.SerializerMethodField()
-    author = serializers.SerializerMethodField()
-    created_at = serializers.CharField(read_only=True, source="get_created_at")
-    category = serializers.SerializerMethodField()
-
     class Meta:
         model = Test
         fields = [
+            "id",
             "title",
             "author",
             "description",
             "category",
-            "slug",
-            "questions",
+            "is_published",
+            "show_results_to_user",
+            "allow_repeated_attempts",
+            "user_can_go_back",
             "created_at",
-            "scales",
+            "passes",
         ]
-
-    def get_scales(self, obj):
-        scales = obj.get_scales()
-        serializer = ScaleSerializer(scales, many=True)
-        return serializer.data
-
-    def get_author(self, obj):
-        author = obj.author
-        serializer = UserSerializer(author, many=False)
-        return serializer.data
-
-    def get_category(self, obj):
-        category = obj.category
-        serializer = CategorySerializer(category, many=False)
-        return serializer.data
 
 
 class TestCreateSerializer(serializers.ModelSerializer):
     """сериализатор для создания теста"""
 
     category = serializers.UUIDField(source="category.id", required=False)
-    created_at = serializers.CharField(read_only=True, source="get_created_at")
 
     class Meta:
         model = Test
-        fields = ["id", "title", "description", "category", "created_at"]
+        fields = [
+            "title",
+            "description",
+            "category",
+            "show_results_to_user",
+            "allow_repeated_attempts",
+            "user_can_go_back",
+        ]
 
 
 class TestUpdateSerializer(TestCreateSerializer):
@@ -99,7 +93,14 @@ class TestUpdateSerializer(TestCreateSerializer):
 
     class Meta:
         model = Test
-        fields = ["id", "title", "description", "category", "updated_at"]
+        fields = [
+            "title",
+            "description",
+            "category",
+            "show_results_to_user",
+            "allow_repeated_attempts",
+            "user_can_go_back",
+        ]
 
     def get_category(self, obj):
         category = obj.category
@@ -110,13 +111,16 @@ class TestUpdateSerializer(TestCreateSerializer):
 class TestAssignSerializer(serializers.ModelSerializer):
     """сериализатор для назначения теста"""
 
-    test = serializers.SerializerMethodField(read_only=True)
     assigned_by = serializers.SerializerMethodField(read_only=True)
     assigned_to = serializers.SerializerMethodField()
 
     class Meta:
         model = AssignedTest
-        fields = ["test", "assigned_to", "assigned_by", "created_at"]
+        fields = [
+            "assigned_to",
+            "assigned_by",
+            "created_at",
+        ]
 
     def get_assigned_by(self, obj):
         assigned_by = obj.assigned_by
@@ -128,15 +132,13 @@ class TestAssignSerializer(serializers.ModelSerializer):
         serializer = UserSerializer(assigned_by, many=False)
         return serializer.data
 
-    def get_test(self, obj):
-        test = obj.test
-        serializer = TestDetailSerializer(test, many=False)
-        return serializer.data
-
 
 class CategorySerializer(serializers.ModelSerializer):
     """сериализатор для категорий"""
 
     class Meta:
         model = Category
-        fields = ["id", "title", "slug"]
+        fields = [
+            "id",
+            "title",
+        ]

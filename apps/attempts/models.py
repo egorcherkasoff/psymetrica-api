@@ -13,7 +13,7 @@ User = get_user_model()
 
 
 class Attempt(BaseModel):
-    """Модель попытки теста"""
+    """Модель прохождения теста"""
 
     user = models.ForeignKey(
         to=User,
@@ -31,13 +31,19 @@ class Attempt(BaseModel):
         related_query_name="attempt",
     )
 
-    finished = models.DateTimeField(
-        null=True, blank=True, verbose_name="Дата завершения"
+    ip = models.GenericIPAddressField(
+        verbose_name="IP-адрес",
+        default="0.0.0.0",
+    )
+
+    is_finished = models.BooleanField(
+        default=False,
+        verbose_name="Прохождение завершено",
     )
 
     class Meta:
         verbose_name = "попытка"
-        verbose_name_plural = "попытки"
+        verbose_name_plural = "прохождения"
         ordering = ["-created_at"]
 
     @property
@@ -54,7 +60,7 @@ class Attempt(BaseModel):
 
     # TODO: переделать. под чем я был когда это писал
     def get_results(self):
-        """возвращает результаты попытки"""
+        """возвращает результаты прохождения"""
         if self.is_finished:
             scales = []
             scores = []
@@ -88,11 +94,11 @@ class Attempt(BaseModel):
     def get_finished_date(self):
         if self.finished:
             return self.finished.strftime("%d.%m.%Y в %H:%M")
-        return "Не завершена"
+        return "Не завершено"
 
 
 class AttemptAnswer(BaseModel):
-    """Модель ответов попытки"""
+    """Модель ответов прохождения"""
 
     attempt = models.ForeignKey(
         to=Attempt,
@@ -113,7 +119,7 @@ class AttemptAnswer(BaseModel):
         max_length=255, verbose_name="Ответ", blank=True, null=True
     )
 
-    # используются для хранения баллов попытки
+    # используются для хранения баллов прохождения
     score = models.SmallIntegerField(
         default=0, verbose_name="Баллы"
     )  # выставляется вручую если вопрос типа OPEN
@@ -123,13 +129,13 @@ class AttemptAnswer(BaseModel):
     )
 
     class Meta:
-        verbose_name = "ответ попытки"
-        verbose_name_plural = "ответы попытки"
+        verbose_name = "ответ прохождения"
+        verbose_name_plural = "ответы прохождения"
         ordering = ["-attempt", "-created_at"]
         unique_together = ["attempt", "option"]
 
     def __str__(self):
-        return f"Ответ попытки {self.attempt.id} на {self.option.question}"
+        return f"Ответ прохождения {self.attempt.id} на {self.option.question}"
 
     def clean(self):
         if self.option.question.test == self.attempt.test:

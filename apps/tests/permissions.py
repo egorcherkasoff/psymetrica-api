@@ -42,7 +42,6 @@ class IsOwnerOrNot(permissions.BasePermission):
         return request.user.has_perm("tests.can_assign_tests")
 
     def has_object_permission(self, request, view, obj):
-        print("checking obj perm...")
         if request.user.is_superuser:
             return True
         return obj.author == request.user

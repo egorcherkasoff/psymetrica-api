@@ -4,21 +4,18 @@ from . import views
 
 urlpatterns = [
     path("", views.PublicTestList.as_view(), name="test-list"),
-    path("<str:slug>", views.PublicTestDetail.as_view(), name="test-detail"),
-    path("<str:slug>/attempts", views.TestAttempts.as_view(), name="test-attempts"),
-    path(
-        "<str:slug>/questions", views.TestQuestionsList.as_view(), name="test-questions"
-    ),
+    path("<str:id>", views.PublicTestDetail.as_view(), name="test-detail"),
+    path("<str:id>/attempts", views.TestAttempts.as_view(), name="test-attempts"),
     path("create/", views.TestCreate.as_view(), name="test-create"),
-    path("<str:slug>/update", views.TestUpdate.as_view(), name="test-update"),
-    path("<str:slug>/delete", views.TestDelete.as_view(), name="test-delete"),
+    path("<str:id>/update", views.TestUpdate.as_view(), name="test-update"),
+    path("<str:id>/delete", views.TestDelete.as_view(), name="test-delete"),
     path(
-        "<str:slug>/assign/",
+        "<str:id>/assign/",
         views.AssignTest.as_view(),
         name="test-assign",
     ),
     path(
-        "<str:slug>/assignments",
+        "<str:id>/assignments",
         views.TestAssignsList.as_view(),
         name="test-assignments",
     ),

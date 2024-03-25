@@ -19,7 +19,7 @@ class AttemptAdmin(ModelAdmin):
     fieldsets = (
         (
             "Основная информация",
-            {"fields": ("user", "test", "finished")},
+            {"fields": ("user", "test", "is_finished")},
         ),
         (
             "Даты",
@@ -42,5 +42,5 @@ class AttemptAdmin(ModelAdmin):
     search_fields = ["test__title"]
     list_display = ["id", "test", "user"]
     list_display_links = ["id", "test", "user"]
-    readonly_fields = ["finished", "created_at", "updated_at"]
+    readonly_fields = ["is_finished", "created_at", "updated_at"]
     empty_value_display = "-информация отсутствует-"
